@@ -1,0 +1,113 @@
+@import url("https://fonts.googleapis.com/css2?family=Quicksand:wght@300..700&family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap");
+@import "tailwindcss";
+@theme {
+  --font-sourceSans: "Source Sans 3", sans-serif;
+  --font-quicksand: "Quicksand", sans-serif;
+  --color-primary: #ffde00;
+  --color-secondary: #d7a760;
+  --color-black: #1c1c1c;
+  --color-neutral: #efecea;
+  --color-gray: #cccccc;
+  --drop-shadow-input: 0px 1px 2px rgba(0, 0, 0, 0.05);
+  --drop-shadow-btn: 1px 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+.loader {
+  width: 48px;
+  height: 48px;
+  margin: auto;
+  position: relative;
+  margin-top: 100px;
+}
+
+.loader:before {
+  content: "";
+  width: 48px;
+  height: 5px;
+  background: #ffdd0088;
+  position: absolute;
+  top: 60px;
+  left: 0;
+  border-radius: 50%;
+  animation: shadow324 0.5s linear infinite;
+}
+
+.loader:after {
+  content: "";
+  width: 100%;
+  height: 100%;
+  background: #ffde00;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 4px;
+  animation: jump7456 0.5s linear infinite;
+}
+
+@keyframes jump7456 {
+  15% {
+    border-bottom-right-radius: 3px;
+  }
+
+  25% {
+    transform: translateY(9px) rotate(22.5deg);
+  }
+
+  50% {
+    transform: translateY(18px) scale(1, 0.9) rotate(45deg);
+    border-bottom-right-radius: 40px;
+  }
+
+  75% {
+    transform: translateY(9px) rotate(67.5deg);
+  }
+
+  100% {
+    transform: translateY(0) rotate(90deg);
+  }
+}
+
+@keyframes shadow324 {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+
+  50% {
+    transform: scale(1.2, 1);
+  }
+}
+
+progress {
+  width: 100%;
+  height: 10px;
+  border-radius: 5px;
+  overflow: hidden; /* Pomembno za zaobljene robove */
+}
+
+/* Ozadje progress bara */
+progress::-webkit-progress-bar {
+  background-color: rgba(204, 204, 204, 0.8);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+/* Polnjenje progress bara (Chrome, Edge, Safari) */
+progress::-webkit-progress-value {
+  background-color: #ffde00;
+  border-radius: 5px;
+}
+
+/* Polnjenje progress bara (Firefox) */
+progress::-moz-progress-bar {
+  background-color: #ffde00;
+  border-radius: 5px;
+}
+
+html {
+  scrollbar-width: none;
+}
+
+html::-webkit-scrollbar-x {
+  display: none;
+}
