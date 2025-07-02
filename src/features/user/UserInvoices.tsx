@@ -36,19 +36,23 @@ function UserInvoices() {
       ) : (
         <div className="rounded-xl bg-white px-9 py-9.5">
           <Namebar />
-          {data.data.map(
-            (invoice: {
-              invoiceDate: string;
-              invoiceData: {
-                businessPremises: string;
-                deviceNo: string;
-                year: number;
-                invoiceNo: number;
-              };
-              _id: string;
-            }) => (
-              <UserInvoicesCard key={invoice._id} invoice={invoice} />
-            ),
+          {data.results > 0 && (
+            <>
+              {data.data.map(
+                (invoice: {
+                  invoiceDate: string;
+                  invoiceData: {
+                    businessPremises: string;
+                    deviceNo: string;
+                    year: number;
+                    invoiceNo: number;
+                  };
+                  _id: string;
+                }) => (
+                  <UserInvoicesCard key={invoice._id} invoice={invoice} />
+                ),
+              )}
+            </>
           )}
         </div>
       )}

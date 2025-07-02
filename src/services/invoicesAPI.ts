@@ -99,7 +99,7 @@ export async function getAllInvoices({
     if (paymentMethod) params.append("paymentMethod", paymentMethod);
     if (label) params.append("label", label);
     if (article) params.append("article", article);
-    if (buyer) params.append("buyer", buyer);
+    if (buyer) params.append("buyerFullName", buyer);
     if (taxNo) params.append("taxNo", taxNo);
 
     const res = await fetch(

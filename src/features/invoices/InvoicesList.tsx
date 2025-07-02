@@ -130,7 +130,7 @@ function InvoiceCard({
         })}
       </p>
       <p className="text-black/75">
-        {company ? company.name : buyer ? buyer.fullName : recepient.name}
+        {company?.name ? company.name : buyer ? buyer.fullName : recepient.name}
       </p>
       <p className="text-black/75">{paymentMethod}</p>
       <p className="text-black/75">

@@ -5,7 +5,7 @@ import {
 } from "@heroicons/react/24/outline";
 import LinkBtn from "../../components/LinkBtn";
 import { useParams } from "react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueries, useQueryClient } from "@tanstack/react-query";
 import {
   changeUserRole,
   getOneUser,
@@ -17,15 +17,18 @@ import { useState, type Dispatch, type SetStateAction } from "react";
 function UserInfo() {
   const [isOpen, setIsOpen] = useState(false);
   const { id } = useParams();
-  const { data, isPending } = useQuery({
-    queryKey: ["user", id],
-    queryFn: () => getOneUser(id!),
-    enabled: !!id,
-  });
-  const { data: preInvoiceData, isPending: isPendingPreInvoice } = useQuery({
-    queryKey: ["preInvoices", id],
-    queryFn: () => getUserUnpaidPreinvoices(id!),
-    enabled: !!id,
+  const [
+    { data, isPending },
+    { data: preInvoiceData, isPending: isPendingPreInvoice },
+  ] = useQueries({
+    queries: [
+      { queryKey: ["user", id], queryFn: () => getOneUser(id!), enabled: !!id },
+      {
+        queryKey: ["preInvoices", id],
+        queryFn: () => getUserUnpaidPreinvoices(id!),
+        enabled: !!id,
+      },
+    ],
   });
 
   return (
