@@ -10,7 +10,7 @@ export async function getAllCompanies(name: string) {
 
     if (!res.ok) {
       const data = await res.json();
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);
@@ -33,7 +33,7 @@ export async function getOneCompany(id: string) {
 
     if (!res.ok) {
       const data = await res.json();
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);
@@ -64,7 +64,7 @@ export async function companyTicketsUse(id: string, users: string[]) {
 
     if (!res.ok) {
       const data = await res.json();
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);
@@ -92,7 +92,7 @@ export async function updateCompany(id: string, newData: unknown) {
 
     if (!res.ok) {
       const data = await res.json();
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);
@@ -118,7 +118,7 @@ export async function removeUser(companyId: string, userId: string) {
 
     if (!res.ok) {
       const data = await res.json();
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);
@@ -144,7 +144,7 @@ export async function addUser(companyId: string, userId: string) {
 
     if (!res.ok) {
       const data = await res.json();
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);
@@ -172,7 +172,7 @@ export async function createCompany(companyData: unknown) {
 
     if (!res.ok) {
       const data = await res.json();
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);
@@ -200,7 +200,7 @@ export async function editCompany(id: string, companyData: unknown) {
 
     if (!res.ok) {
       const data = await res.json();
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);

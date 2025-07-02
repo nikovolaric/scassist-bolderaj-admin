@@ -49,7 +49,7 @@ export async function getAllUsers(
     if (!res.ok) {
       const data = await res.json();
 
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);
@@ -72,7 +72,7 @@ export async function getOneUser(id: string) {
 
     if (!res.ok) {
       const data = await res.json();
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);
@@ -98,7 +98,7 @@ export async function getUserTickets(id: string) {
 
     if (!res.ok) {
       const data = await res.json();
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);
@@ -124,7 +124,7 @@ export async function getUserClasses(id: string) {
 
     if (!res.ok) {
       const data = await res.json();
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);
@@ -150,7 +150,7 @@ export async function getUserActivities(id: string) {
 
     if (!res.ok) {
       const data = await res.json();
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);
@@ -176,7 +176,7 @@ export async function getUserCompanies(id: string) {
 
     if (!res.ok) {
       const data = await res.json();
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);
@@ -202,7 +202,7 @@ export async function getUserChildren(id: string) {
 
     if (!res.ok) {
       const data = await res.json();
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);
@@ -239,7 +239,7 @@ export async function changeUserRole(
     const data = await res.json();
 
     if (!res.ok) {
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);
@@ -269,7 +269,7 @@ export async function removeUserRole(id: string, role: string) {
     const data = await res.json();
 
     if (!res.ok) {
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);
@@ -296,7 +296,7 @@ export async function editUser(id: string, newData: unknown) {
     const data = await res.json();
 
     if (!res.ok) {
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);

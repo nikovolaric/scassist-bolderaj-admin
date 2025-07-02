@@ -10,7 +10,7 @@ export async function getUserVisits(id: string) {
 
     if (!res.ok) {
       const data = await res.json();
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);
@@ -35,7 +35,7 @@ export async function getDailyVisits() {
 
     if (!res.ok) {
       const data = await res.json();
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);
@@ -66,7 +66,7 @@ export async function getCompanyVisits(companyId: string, limit: number) {
 
     if (!res.ok) {
       const data = await res.json();
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);
@@ -92,7 +92,7 @@ export async function exportCompanyVisits(companyId: string) {
     if (!res.ok) {
       const data = await res.json();
       console.log(data);
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);

@@ -10,7 +10,7 @@ export async function getUserUnpaidPreinvoices(id: string) {
 
     if (!res.ok) {
       const data = await res.json();
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);
@@ -36,7 +36,7 @@ export async function openPreInvoice(id: string) {
 
     if (!res.ok) {
       const data = await res.json();
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);
@@ -74,7 +74,7 @@ export async function createInvoiceFromPreInvoice({
     if (!res.ok) {
       const data = await res.json();
       console.log(data);
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);
@@ -101,7 +101,7 @@ export async function deletePreInvoice(id: string) {
     if (!res.ok) {
       const data = await res.json();
       console.log(data);
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);
@@ -133,7 +133,7 @@ export async function getAllPreinvoices(q: string, page: number) {
 
     if (!res.ok) {
       const data = await res.json();
-      if (data.error.statusCode === 500) {
+      if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }
       throw Error(data.message);
