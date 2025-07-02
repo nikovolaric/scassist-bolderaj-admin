@@ -15,7 +15,12 @@ function Login() {
 
   useEffect(
     function () {
-      if (!isPending && data.name !== "Error" && data.role.includes("admin")) {
+      if (
+        !isPending &&
+        data &&
+        data.name !== "Error" &&
+        data.role.includes("admin")
+      ) {
         navigate("/dashboard");
       }
     },

@@ -6,17 +6,20 @@ export async function loginAction({
   password: string;
 }) {
   try {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/users/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/users/loginAdmin`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          email,
+          password,
+        }),
       },
-      credentials: "include",
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    });
+    );
     const data = await res.json();
 
     if (!res.ok) {
