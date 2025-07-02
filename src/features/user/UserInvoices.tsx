@@ -38,7 +38,7 @@ function UserInvoices() {
           <Namebar />
           {data.results > 0 && (
             <>
-              {data.data.map(
+              {data.invoices.map(
                 (invoice: {
                   invoiceDate: string;
                   invoiceData: {
