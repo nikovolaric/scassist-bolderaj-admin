@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
 import Spinner from "../../components/Spinner";
 import { useState } from "react";
@@ -81,10 +81,9 @@ function UserInvoicesCard({
   };
 }) {
   const { invoiceDate, invoiceData, _id } = invoice;
-  const queryClient = useQueryClient();
 
   const [isLoadingOpen, setIsLoadingOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  // const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleOpenPreInvoice() {
     try {
@@ -134,12 +133,9 @@ function UserInvoicesCard({
         >
           {isLoadingOpen ? "..." : "Odpri datoteko"}
         </button>{" "}
-        <button
-          className="border-gray flex cursor-pointer items-center gap-4 rounded-lg border px-8 py-1 font-semibold text-black/50 shadow-[1px_1px_2px_rgba(0,0,0,0.05)] transition-colors duration-300 hover:bg-black/5 disabled:cursor-not-allowed disabled:bg-gray-400"
-          // onClick={handleDelete}
-          // disabled={isDeleting}
-        >
-          {isDeleting ? "..." : "Storniraj"}
+        <button className="border-gray flex cursor-pointer items-center gap-4 rounded-lg border px-8 py-1 font-semibold text-black/50 shadow-[1px_1px_2px_rgba(0,0,0,0.05)] transition-colors duration-300 hover:bg-black/5 disabled:cursor-not-allowed disabled:bg-gray-400">
+          {/* {isDeleting ? "..." : "Storniraj"} */}
+          Storniraj
         </button>
       </div>
     </div>
