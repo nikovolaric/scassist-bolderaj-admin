@@ -139,26 +139,24 @@ function reducer(state: IInitialState, action: Action): IInitialState {
 }
 
 function SearchInvoices() {
-  const [
-    {
-      q,
-      category,
-      dateFrom,
-      dateTo,
-      dateFromDone,
-      dateToDone,
-      issuer,
-      totalAmount,
-      paymentMethod,
-      label,
-      article,
-      buyer,
-      taxNo,
-      isOpenFilter,
-    },
-    dispatch,
-  ] = useReducer(reducer, initialState);
+  const [state, dispatch] = useReducer(reducer, initialState);
   const [page, setPage] = useState(1);
+
+  const {
+    q,
+    category,
+    dateFrom,
+    dateTo,
+    dateFromDone,
+    dateToDone,
+    issuer,
+    totalAmount,
+    paymentMethod,
+    label,
+    article,
+    buyer,
+    taxNo,
+  } = state;
 
   const [
     { data: invoiceData, isPending: isPendingInvoices },
@@ -220,11 +218,7 @@ function SearchInvoices() {
           </button>
         </div>
       </div>
-      <Filter
-        category={category}
-        dispatch={dispatch}
-        isOpenFilter={isOpenFilter}
-      />
+      <Filter state={state} dispatch={dispatch} />
       {category === "invoices" && isPendingInvoices && <Spinner />}
       {category === "invoices" && invoiceData && !isPendingInvoices && (
         <InvoicesList
@@ -248,14 +242,14 @@ function SearchInvoices() {
 }
 
 function Filter({
-  category,
+  state,
   dispatch,
-  isOpenFilter,
 }: {
-  category: string;
+  state: IInitialState;
   dispatch: Dispatch<Action>;
-  isOpenFilter: boolean;
 }) {
+  const { q, category, isOpenFilter } = state;
+
   return (
     <>
       <div className="relative grid grid-cols-[12fr_3fr_3fr_4fr] gap-x-5">
@@ -265,6 +259,7 @@ function Filter({
             placeholder={`Išči po ${category === "invoices" ? "številki računa (npr. BLAGO-1)" : "referenci ali prejemniku"}`}
             className="w-full outline-none"
             onChange={(e) => dispatch({ type: "q", payload: e.target.value })}
+            defaultValue={q}
           />
         </div>
         {category === "invoices" && (
@@ -293,13 +288,33 @@ function Filter({
           {category === "invoices" ? "račun" : "predračun"}
         </button>
       </div>
-      {isOpenFilter && <FilterOptions dispatch={dispatch} />}
+      {isOpenFilter && <FilterOptions dispatch={dispatch} state={state} />}
     </>
   );
 }
 
-function FilterOptions({ dispatch }: { dispatch: Dispatch<Action> }) {
+function FilterOptions({
+  state,
+  dispatch,
+}: {
+  state: IInitialState;
+  dispatch: Dispatch<Action>;
+}) {
   const queryClient = useQueryClient();
+
+  const {
+    dateFrom,
+    dateTo,
+    dateFromDone,
+    dateToDone,
+    issuer,
+    totalAmount,
+    paymentMethod,
+    label,
+    article,
+    buyer,
+    taxNo,
+  } = state;
 
   return (
     <div className="grid grid-cols-4 gap-16 rounded-xl bg-white px-8 py-10">
@@ -314,6 +329,7 @@ function FilterOptions({ dispatch }: { dispatch: Dispatch<Action> }) {
             onChange={(e) =>
               dispatch({ type: "dateFrom", payload: e.target.value })
             }
+            defaultValue={dateFrom}
           />
           <input
             type="date"
@@ -321,6 +337,7 @@ function FilterOptions({ dispatch }: { dispatch: Dispatch<Action> }) {
             onChange={(e) =>
               dispatch({ type: "dateTo", payload: e.target.value })
             }
+            defaultValue={dateTo}
           />
         </div>
       </div>
@@ -335,6 +352,7 @@ function FilterOptions({ dispatch }: { dispatch: Dispatch<Action> }) {
             onChange={(e) =>
               dispatch({ type: "dateFromDone", payload: e.target.value })
             }
+            defaultValue={dateFromDone}
           />
           <input
             type="date"
@@ -342,6 +360,7 @@ function FilterOptions({ dispatch }: { dispatch: Dispatch<Action> }) {
             onChange={(e) =>
               dispatch({ type: "dateToDone", payload: e.target.value })
             }
+            defaultValue={dateToDone}
           />
         </div>
       </div>
@@ -354,6 +373,7 @@ function FilterOptions({ dispatch }: { dispatch: Dispatch<Action> }) {
             onChange={(e) =>
               dispatch({ type: "issuer", payload: e.target.value })
             }
+            defaultValue={issuer}
           />
         </div>
       </div>{" "}
@@ -366,6 +386,7 @@ function FilterOptions({ dispatch }: { dispatch: Dispatch<Action> }) {
             onChange={(e) =>
               dispatch({ type: "totalAmount", payload: e.target.value })
             }
+            defaultValue={totalAmount}
           />
         </div>
       </div>
@@ -377,6 +398,7 @@ function FilterOptions({ dispatch }: { dispatch: Dispatch<Action> }) {
             onChange={(e) =>
               dispatch({ type: "paymentMethod", payload: e.target.value })
             }
+            defaultValue={paymentMethod}
           >
             <option value="">Izberi način plačila</option>
             <option value="gotovina">Gotovina</option>
@@ -395,6 +417,7 @@ function FilterOptions({ dispatch }: { dispatch: Dispatch<Action> }) {
             onChange={(e) =>
               dispatch({ type: "label", payload: e.target.value })
             }
+            defaultValue={label}
           >
             <option value="">Izberi kategorijo artikla</option>
             <option value="V">Vstopnica</option>
@@ -413,6 +436,7 @@ function FilterOptions({ dispatch }: { dispatch: Dispatch<Action> }) {
             onChange={(e) =>
               dispatch({ type: "article", payload: e.target.value })
             }
+            defaultValue={article}
           />
         </div>
       </div>
@@ -425,6 +449,7 @@ function FilterOptions({ dispatch }: { dispatch: Dispatch<Action> }) {
             onChange={(e) =>
               dispatch({ type: "buyer", payload: e.target.value })
             }
+            defaultValue={buyer}
           />
         </div>
       </div>
@@ -437,6 +462,7 @@ function FilterOptions({ dispatch }: { dispatch: Dispatch<Action> }) {
             onChange={(e) =>
               dispatch({ type: "taxNo", payload: e.target.value })
             }
+            defaultValue={taxNo}
           />
         </div>
       </div>

@@ -1,5 +1,6 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import type { Dispatch, SetStateAction } from "react";
+import { ChevronLeft, ChevronRight, FileX2, FolderDown } from "lucide-react";
+import { useState, type Dispatch, type SetStateAction } from "react";
+import { openInvoice } from "../../services/invoicesAPI";
 
 function InvoicesList({
   invoices,
@@ -26,6 +27,20 @@ function InvoicesList({
 }) {
   return (
     <div className="rounded-xl bg-white px-12.5 py-12">
+      <p className="mb-2 text-right">
+        Skupni znesek na strani:{" "}
+        <span className="font-bold">
+          {new Intl.NumberFormat("sl-SI", {
+            style: "currency",
+            currency: "EUR",
+          }).format(
+            invoices.reduce(
+              (c: number, a: { totalAmount: number }) => c + a.totalAmount,
+              0,
+            ),
+          )}
+        </span>
+      </p>
       <Namebar />
       {invoices.map(
         (
@@ -113,11 +128,25 @@ function InvoiceCard({
     recepient,
     paymentMethod,
     totalAmount,
+    _id,
   } = invoice;
+  const [isLoadingOpen, setIsLoadingOpen] = useState(false);
+
+  async function handleOpen() {
+    try {
+      setIsLoadingOpen(true);
+
+      await openInvoice(_id);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoadingOpen(false);
+    }
+  }
 
   return (
     <div
-      className={`grid grid-cols-[3fr_4fr_4fr_3fr_3fr_2fr] border-b border-black/20 px-3 py-6 ${i % 2 === 0 ? "" : "bg-primary/10"}`}
+      className={`grid grid-cols-[3fr_4fr_4fr_3fr_3fr_2fr] items-center border-b border-black/20 px-3 py-6 ${i % 2 === 0 ? "" : "bg-primary/10"}`}
     >
       <p className="font-medium">{`${invoiceData.businessPremises}-${invoiceData.deviceNo}-${invoiceData.invoiceNo}-${invoiceData.year}`}</p>
       <p className="text-black/75">
@@ -130,7 +159,13 @@ function InvoiceCard({
         })}
       </p>
       <p className="text-black/75">
-        {company?.name ? company.name : buyer ? buyer.fullName : recepient.name}
+        {company?.name
+          ? company.name
+          : buyer
+            ? buyer.fullName
+            : recepient
+              ? recepient.name
+              : ""}
       </p>
       <p className="text-black/75">{paymentMethod}</p>
       <p className="text-black/75">
@@ -139,6 +174,18 @@ function InvoiceCard({
           currency: "EUR",
         }).format(totalAmount)}
       </p>
+      <div className="flex items-center gap-4">
+        <div
+          className="from-primary to-secondary drop-shadow-btn hover:to-primary duraton-150 cursor-pointer rounded-lg bg-gradient-to-r p-2 transition-colors aria-disabled:cursor-not-allowed aria-disabled:from-gray-400 aria-disabled:to-gray-400"
+          onClick={handleOpen}
+          aria-disabled={isLoadingOpen}
+        >
+          <FolderDown />
+        </div>
+        <div className="drop-shadow-btn hover:bg-gray/40 duraton-150 bg-gray/80 cursor-pointer rounded-lg p-2 transition-colors disabled:cursor-not-allowed disabled:bg-gray-400">
+          <FileX2 />
+        </div>
+      </div>
     </div>
   );
 }
