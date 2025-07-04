@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight, FileX2, FolderDown } from "lucide-react";
 import { useState, type Dispatch, type SetStateAction } from "react";
 import { openInvoice } from "../../services/invoicesAPI";
+import { Link } from "react-router";
 
 function InvoicesList({
   invoices,
@@ -15,7 +16,7 @@ function InvoicesList({
       year: number;
     };
     invoiceDate: string;
-    buyer: { fullName: string };
+    buyer: { fullName: string; _id: string };
     company: { name: string };
     recepient: { name: string };
     paymentMethod: string;
@@ -53,7 +54,7 @@ function InvoicesList({
               year: number;
             };
             invoiceDate: string;
-            buyer: { fullName: string };
+            buyer: { fullName: string; _id: string };
             company: { name: string };
             recepient: { name: string };
             paymentMethod: string;
@@ -113,7 +114,7 @@ function InvoiceCard({
       year: number;
     };
     invoiceDate: string;
-    buyer: { fullName: string };
+    buyer: { fullName: string; _id: string };
     recepient: { name: string };
     company: { name: string };
     paymentMethod: string;
@@ -162,7 +163,10 @@ function InvoiceCard({
           minute: "2-digit",
         })}
       </p>
-      <p className="text-black/75">
+      <Link
+        to={`/dashboard${buyer ? `/users/${buyer._id}` : ""}`}
+        className="text-black/75"
+      >
         {company?.name
           ? company.name
           : buyer
@@ -170,7 +174,7 @@ function InvoiceCard({
             : recepient
               ? recepient.name
               : ""}
-      </p>
+      </Link>
       <p className="text-black/75">{paymentMethod}</p>
       <p className="text-black/75">
         {new Intl.NumberFormat("sl-SI", {
