@@ -47,6 +47,7 @@ function UserInvoices() {
                     year: number;
                     invoiceNo: number;
                   };
+                  storno: boolean;
                   _id: string;
                 }) => (
                   <UserInvoicesCard key={invoice._id} invoice={invoice} />
@@ -81,10 +82,11 @@ function UserInvoicesCard({
       year: number;
       invoiceNo: number;
     };
+    storno: boolean;
     _id: string;
   };
 }) {
-  const { invoiceDate, invoiceData, _id } = invoice;
+  const { invoiceDate, invoiceData, _id, storno } = invoice;
 
   const [isLoadingOpen, setIsLoadingOpen] = useState(false);
   // const [isDeleting, setIsDeleting] = useState(false);
@@ -137,10 +139,14 @@ function UserInvoicesCard({
         >
           {isLoadingOpen ? "..." : "Odpri datoteko"}
         </button>{" "}
-        <button className="border-gray flex cursor-pointer items-center gap-4 rounded-lg border px-8 py-1 font-semibold text-black/50 shadow-[1px_1px_2px_rgba(0,0,0,0.05)] transition-colors duration-300 hover:bg-black/5 disabled:cursor-not-allowed disabled:bg-gray-400">
-          {/* {isDeleting ? "..." : "Storniraj"} */}
-          Storniraj
-        </button>
+        {storno ? (
+          <div />
+        ) : (
+          <button className="border-gray flex cursor-pointer items-center gap-4 rounded-lg border px-8 py-1 font-semibold text-black/50 shadow-[1px_1px_2px_rgba(0,0,0,0.05)] transition-colors duration-300 hover:bg-black/5 disabled:cursor-not-allowed disabled:bg-gray-400">
+            {/* {isDeleting ? "..." : "Storniraj"} */}
+            Storniraj
+          </button>
+        )}
       </div>
     </div>
   );

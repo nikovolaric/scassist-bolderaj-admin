@@ -20,6 +20,7 @@ function InvoicesList({
     recepient: { name: string };
     paymentMethod: string;
     totalAmount: number;
+    storno: boolean;
     _id: string;
   }[];
   page: number;
@@ -57,6 +58,7 @@ function InvoicesList({
             recepient: { name: string };
             paymentMethod: string;
             totalAmount: number;
+            storno: boolean;
             _id: string;
           },
           i: number,
@@ -116,6 +118,7 @@ function InvoiceCard({
     company: { name: string };
     paymentMethod: string;
     totalAmount: number;
+    storno: boolean;
     _id: string;
   };
   i: number;
@@ -128,6 +131,7 @@ function InvoiceCard({
     recepient,
     paymentMethod,
     totalAmount,
+    storno,
     _id,
   } = invoice;
   const [isLoadingOpen, setIsLoadingOpen] = useState(false);
@@ -182,9 +186,13 @@ function InvoiceCard({
         >
           <FolderDown />
         </div>
-        <div className="drop-shadow-btn hover:bg-gray/40 duraton-150 bg-gray/80 cursor-pointer rounded-lg p-2 transition-colors disabled:cursor-not-allowed disabled:bg-gray-400">
-          <FileX2 />
-        </div>
+        {storno || totalAmount < 0 ? (
+          <div />
+        ) : (
+          <div className="drop-shadow-btn hover:bg-gray/40 duraton-150 bg-gray/80 cursor-pointer rounded-lg p-2 transition-colors disabled:cursor-not-allowed disabled:bg-gray-400">
+            <FileX2 />
+          </div>
+        )}
       </div>
     </div>
   );
