@@ -17,6 +17,7 @@ import Articles from "./pages/Articles";
 import AddArticle from "./pages/AddArticle";
 import EditArticle from "./pages/EditArticle";
 import Invoices from "./pages/Invoices";
+import CreateInvoice from "./pages/CreateInvoice";
 
 const router = createBrowserRouter([
   {
@@ -80,6 +81,7 @@ const router = createBrowserRouter([
           },
           {
             path: "invoices/create",
+            Component: CreateInvoice,
           },
         ],
       },

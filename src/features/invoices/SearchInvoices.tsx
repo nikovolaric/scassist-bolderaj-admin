@@ -15,6 +15,7 @@ import {
 } from "../../services/invoicesAPI";
 import { getAllPreinvoices } from "../../services/preInvoicesAPI";
 import PreInvoicesList from "./PreInvoicesList";
+import { Link } from "react-router";
 
 interface IInitialState {
   q: string;
@@ -330,10 +331,13 @@ function Filter({
           <CircleArrowDown height={20} />
           Izvozi v excel
         </button>
-        <button className="from-primary to-secondary drop-shadow-btn hover:to-primary flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-gradient-to-r px-4 py-1 font-semibold transition-colors duration-300">
+        <Link
+          to={`/dashboard/invoices/${category === "invoices" ? "create" : "createpreinvoice"}`}
+          className="from-primary to-secondary drop-shadow-btn hover:to-primary flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-gradient-to-r px-4 py-1 font-semibold transition-colors duration-300"
+        >
           <CirclePlusIcon height={20} /> Ustvari nov{" "}
           {category === "invoices" ? "račun" : "predračun"}
-        </button>
+        </Link>
       </div>
       {isOpenFilter && <FilterOptions dispatch={dispatch} state={state} />}
     </>

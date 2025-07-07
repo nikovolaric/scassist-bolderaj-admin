@@ -1,8 +1,22 @@
-import { ChevronLeft, ChevronRight, FileX2, FolderDown } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  FileX2,
+  FolderDown,
+  SaveIcon,
+} from "lucide-react";
 import { useState, type Dispatch, type SetStateAction } from "react";
-import { openInvoice, stornoInvoice } from "../../services/invoicesAPI";
+import {
+  openInvoice,
+  stornoInvoice,
+  updateInvoice,
+} from "../../services/invoicesAPI";
 import { Link } from "react-router";
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  PencilIcon,
+} from "@heroicons/react/24/outline";
 import { useQueryClient } from "@tanstack/react-query";
 
 function InvoicesList({
@@ -156,9 +170,13 @@ function InvoiceCard({
     storno,
     _id,
   } = invoice;
+
+  const queryClient = useQueryClient();
+
   const [isLoadingOpen, setIsLoadingOpen] = useState(false);
   const [isOpenConfirmStorno, setIsOpenConfirmSotrno] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [editPayment, setEditPayment] = useState(false);
 
   async function handleOpen() {
     try {
@@ -174,6 +192,19 @@ function InvoiceCard({
 
   function handleStorno() {
     setIsOpenConfirmSotrno(true);
+  }
+
+  async function changePayment(formData: FormData) {
+    try {
+      const paymentMethod = formData.get("paymentMethod");
+
+      await updateInvoice(_id, { paymentMethod });
+
+      queryClient.invalidateQueries({ queryKey: ["invoices"] });
+      setEditPayment(false);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (
@@ -202,7 +233,33 @@ function InvoiceCard({
               ? recepient.name
               : ""}
       </Link>
-      <p className="text-black/75">{paymentMethod}</p>
+      {editPayment ? (
+        <form className="flex items-center gap-2" action={changePayment}>
+          <select
+            className="w-3/4 cursor-pointer rounded-lg border border-gray-300 px-2 py-1 shadow-xs"
+            name="paymentMethod"
+            defaultValue={paymentMethod}
+          >
+            <option value="">Izberi način plačila</option>
+            <option value="gotovina">Gotovina</option>
+            <option value="card">Kartica</option>
+            <option value="online">Spletno plačilo</option>
+            <option value="paypal">Paypal</option>
+            <option value="nakazilo">Nakazilo</option>
+          </select>
+          <button>
+            <SaveIcon height={16} className="cursor-pointer text-black/50" />
+          </button>
+        </form>
+      ) : (
+        <p className="flex items-center gap-2 text-black/75">
+          {paymentMethod}{" "}
+          <PencilIcon
+            className="h-4 cursor-pointer text-black/50"
+            onClick={() => setEditPayment(true)}
+          />
+        </p>
+      )}
       <p className="text-black/75">
         {new Intl.NumberFormat("sl-SI", {
           style: "currency",
