@@ -1,12 +1,15 @@
 import { ChevronLeft, ChevronRight, FileX2, FolderDown } from "lucide-react";
 import { useState, type Dispatch, type SetStateAction } from "react";
-import { openInvoice } from "../../services/invoicesAPI";
+import { openInvoice, stornoInvoice } from "../../services/invoicesAPI";
 import { Link } from "react-router";
+import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import { useQueryClient } from "@tanstack/react-query";
 
 function InvoicesList({
   invoices,
   page,
   setPage,
+  totalFilterSum,
 }: {
   invoices: {
     invoiceData: {
@@ -26,23 +29,41 @@ function InvoicesList({
   }[];
   page: number;
   setPage: Dispatch<SetStateAction<number>>;
+  totalFilterSum?: number;
 }) {
   return (
     <div className="rounded-xl bg-white px-12.5 py-12">
-      <p className="mb-2 text-right">
-        Skupni znesek na strani:{" "}
-        <span className="font-bold">
-          {new Intl.NumberFormat("sl-SI", {
-            style: "currency",
-            currency: "EUR",
-          }).format(
-            invoices.reduce(
-              (c: number, a: { totalAmount: number }) => c + a.totalAmount,
-              0,
-            ),
+      <div className="flex items-center justify-between">
+        <div>
+          {totalFilterSum ? (
+            <p>
+              Skupni znesek filtra:{" "}
+              <span className="font-bold">
+                {new Intl.NumberFormat("sl-SI", {
+                  style: "currency",
+                  currency: "EUR",
+                }).format(totalFilterSum)}
+              </span>
+            </p>
+          ) : (
+            ""
           )}
-        </span>
-      </p>
+        </div>
+        <p className="mb-2 text-right">
+          Skupni znesek na strani:{" "}
+          <span className="font-bold">
+            {new Intl.NumberFormat("sl-SI", {
+              style: "currency",
+              currency: "EUR",
+            }).format(
+              invoices.reduce(
+                (c: number, a: { totalAmount: number }) => c + a.totalAmount,
+                0,
+              ),
+            )}
+          </span>
+        </p>
+      </div>
       <Namebar />
       {invoices.map(
         (
@@ -136,6 +157,8 @@ function InvoiceCard({
     _id,
   } = invoice;
   const [isLoadingOpen, setIsLoadingOpen] = useState(false);
+  const [isOpenConfirmStorno, setIsOpenConfirmSotrno] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   async function handleOpen() {
     try {
@@ -149,9 +172,13 @@ function InvoiceCard({
     }
   }
 
+  function handleStorno() {
+    setIsOpenConfirmSotrno(true);
+  }
+
   return (
     <div
-      className={`grid grid-cols-[3fr_4fr_4fr_3fr_3fr_2fr] items-center border-b border-black/20 px-3 py-6 ${i % 2 === 0 ? "" : "bg-primary/10"}`}
+      className={`relative grid grid-cols-[3fr_4fr_4fr_3fr_3fr_2fr] items-center border-b border-black/20 px-3 py-6 ${i % 2 === 0 ? "" : "bg-primary/10"}`}
     >
       <p className="font-medium">{`${invoiceData.businessPremises}-${invoiceData.deviceNo}-${invoiceData.invoiceNo}-${invoiceData.year}`}</p>
       <p className="text-black/75">
@@ -182,21 +209,97 @@ function InvoiceCard({
           currency: "EUR",
         }).format(totalAmount)}
       </p>
-      <div className="flex items-center gap-4">
-        <div
-          className="from-primary to-secondary drop-shadow-btn hover:to-primary duraton-150 cursor-pointer rounded-lg bg-gradient-to-r p-2 transition-colors aria-disabled:cursor-not-allowed aria-disabled:from-gray-400 aria-disabled:to-gray-400"
-          onClick={handleOpen}
-          aria-disabled={isLoadingOpen}
-        >
-          <FolderDown />
-        </div>
-        {storno || totalAmount < 0 ? (
-          <div />
-        ) : (
-          <div className="drop-shadow-btn hover:bg-gray/40 duraton-150 bg-gray/80 cursor-pointer rounded-lg p-2 transition-colors disabled:cursor-not-allowed disabled:bg-gray-400">
-            <FileX2 />
+      {isSuccess ? (
+        <p className="font-semibold">Račun uspešno storniran.</p>
+      ) : (
+        <div className="flex items-center gap-4">
+          <div
+            className="from-primary to-secondary drop-shadow-btn hover:to-primary duraton-150 cursor-pointer rounded-lg bg-gradient-to-r p-2 transition-colors aria-disabled:cursor-not-allowed aria-disabled:from-gray-400 aria-disabled:to-gray-400"
+            onClick={handleOpen}
+            aria-disabled={isLoadingOpen}
+          >
+            <FolderDown />
           </div>
-        )}
+          {storno || totalAmount < 0 ? (
+            <div />
+          ) : (
+            <div
+              className="drop-shadow-btn hover:bg-gray/40 duraton-150 bg-gray/80 cursor-pointer rounded-lg p-2 transition-colors"
+              onClick={handleStorno}
+            >
+              <FileX2 />
+            </div>
+          )}
+        </div>
+      )}
+      {isOpenConfirmStorno && (
+        <ConfirmStorno
+          id={_id}
+          invoiceNo={`${invoiceData.businessPremises}-${invoiceData.deviceNo}-${invoiceData.invoiceNo}-${invoiceData.year}`}
+          setIsOpenStorno={setIsOpenConfirmSotrno}
+          setIsSuccess={setIsSuccess}
+        />
+      )}
+    </div>
+  );
+}
+
+function ConfirmStorno({
+  id,
+  invoiceNo,
+  setIsOpenStorno,
+  setIsSuccess,
+}: {
+  id: string;
+  invoiceNo: string;
+  setIsOpenStorno: Dispatch<SetStateAction<boolean>>;
+  setIsSuccess: Dispatch<SetStateAction<boolean>>;
+}) {
+  const queryClient = useQueryClient();
+  const [isLoading, setIsLoading] = useState(false);
+
+  async function handleStorno() {
+    try {
+      setIsLoading(true);
+
+      const data = await stornoInvoice(id);
+
+      if (!(data instanceof Error)) {
+        queryClient.invalidateQueries({ queryKey: ["invoices"] });
+        setIsSuccess(true);
+        setIsOpenStorno(false);
+
+        setTimeout(() => {
+          setIsSuccess(false);
+        }, 1000);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  return (
+    <div className="bg-neutral/95 border-gray/80 absolute top-0 right-0 z-50 flex w-[400px] flex-col gap-15 rounded-xl border px-6 pt-16 pb-5.5">
+      <p className="font-medium">
+        Ali ste prepričani, da želite strornirati račun <br />{" "}
+        <span className="font-bold">{invoiceNo}</span>
+      </p>
+      <div className="flex items-center justify-between">
+        <button
+          onClick={() => setIsOpenStorno(false)}
+          className="flex cursor-pointer items-center gap-4 rounded-xl border border-black px-4 py-3 font-semibold"
+        >
+          <ChevronLeftIcon className="h-4 stroke-3" /> Prekliči
+        </button>
+        <button
+          className="from-primary to-secondary drop-shadow-btn hover:to-primary flex cursor-pointer items-center gap-4 rounded-lg bg-gradient-to-r px-4 py-3 font-semibold transition-colors duration-300 disabled:cursor-not-allowed disabled:from-gray-400 disabled:to-gray-400"
+          onClick={handleStorno}
+          disabled={isLoading}
+        >
+          Storniraj račun <ChevronRightIcon className="h-4 stroke-3" />
+        </button>
       </div>
     </div>
   );

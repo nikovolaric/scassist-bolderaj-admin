@@ -123,3 +123,89 @@ export async function getAllInvoices({
     return error as Error;
   }
 }
+
+export async function getInvoicesTotalSum({
+  dateFrom,
+  dateTo,
+  dateFromDone,
+  dateToDone,
+  issuer,
+  totalAmount,
+  paymentMethod,
+  label,
+  article,
+  buyer,
+  taxNo,
+}: {
+  dateFrom: string;
+  dateTo: string;
+  dateFromDone: string;
+  dateToDone: string;
+  issuer: string;
+  totalAmount: string;
+  paymentMethod: string;
+  label: string;
+  article: string;
+  buyer: string;
+  taxNo: string;
+}) {
+  try {
+    const params = new URLSearchParams();
+
+    if (dateFrom) params.append("dateFrom", dateFrom);
+    if (dateTo) params.append("dateTo", dateTo);
+    if (dateFromDone) params.append("dateFromDone", dateFromDone);
+    if (dateToDone) params.append("dateToDone", dateToDone);
+    if (issuer) params.append("issuer", issuer);
+    if (totalAmount) params.append("totalAmount", totalAmount);
+    if (paymentMethod) params.append("paymentMethod", paymentMethod);
+    if (label) params.append("label", label);
+    if (article) params.append("article", article);
+    if (buyer) params.append("buyerFullName", buyer);
+    if (taxNo) params.append("taxNo", taxNo);
+
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/invoices/totalamountsum?${params.toString()}`,
+      {
+        method: "GET",
+        credentials: "include",
+      },
+    );
+    const data = await res.json();
+
+    if (!res.ok) {
+      if (data.status === "error") {
+        throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
+      }
+      throw Error(data.message);
+    }
+
+    return data;
+  } catch (error) {
+    return error as Error;
+  }
+}
+
+export async function stornoInvoice(id: string) {
+  try {
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/invoices/storno/${id}`,
+      {
+        method: "POST",
+        credentials: "include",
+      },
+    );
+    const data = await res.json();
+
+    if (!res.ok) {
+      if (data.status === "error") {
+        throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
+      }
+      throw Error(data.message);
+    }
+
+    return data;
+  } catch (error) {
+    return error as Error;
+  }
+}

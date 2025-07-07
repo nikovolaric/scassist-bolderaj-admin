@@ -78,6 +78,9 @@ const router = createBrowserRouter([
             path: "invoices",
             Component: Invoices,
           },
+          {
+            path: "invoices/create",
+          },
         ],
       },
     ],

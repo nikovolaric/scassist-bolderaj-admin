@@ -9,7 +9,10 @@ import { useReducer, useState, type Dispatch } from "react";
 import InvoicesList from "./InvoicesList";
 import { useQueries, useQueryClient } from "@tanstack/react-query";
 import Spinner from "../../components/Spinner";
-import { getAllInvoices } from "../../services/invoicesAPI";
+import {
+  getAllInvoices,
+  getInvoicesTotalSum,
+} from "../../services/invoicesAPI";
 import { getAllPreinvoices } from "../../services/preInvoicesAPI";
 import PreInvoicesList from "./PreInvoicesList";
 
@@ -161,6 +164,7 @@ function SearchInvoices() {
   const [
     { data: invoiceData, isPending: isPendingInvoices },
     { data: preinvoiceData, isPending: isPendingPreinvoices },
+    { data: invoiceSumData },
   ] = useQueries({
     queries: [
       {
@@ -187,6 +191,48 @@ function SearchInvoices() {
         queryKey: ["preinvoices", q, page],
         queryFn: () => getAllPreinvoices(q, page),
         enabled: category === "preinvoices",
+      },
+      {
+        queryKey: [
+          "invoicesSum",
+          dateFrom,
+          dateTo,
+          dateFromDone,
+          dateToDone,
+          issuer,
+          totalAmount,
+          paymentMethod,
+          label,
+          article,
+          buyer,
+          taxNo,
+        ],
+        queryFn: () =>
+          getInvoicesTotalSum({
+            dateFrom,
+            dateTo,
+            dateFromDone,
+            dateToDone,
+            issuer,
+            totalAmount,
+            paymentMethod,
+            label,
+            article,
+            buyer,
+            taxNo,
+          }),
+        enabled:
+          !!dateFrom ||
+          !!dateTo ||
+          !!dateFromDone ||
+          !!dateToDone ||
+          !!issuer ||
+          !!totalAmount ||
+          !!paymentMethod ||
+          !!label ||
+          !!article ||
+          !!buyer ||
+          !!taxNo,
       },
     ],
   });
@@ -225,6 +271,7 @@ function SearchInvoices() {
           invoices={invoiceData.invoices}
           page={page}
           setPage={setPage}
+          totalFilterSum={invoiceSumData?.totalAmount}
         />
       )}
       {category === "preinvoices" && isPendingPreinvoices && <Spinner />}
