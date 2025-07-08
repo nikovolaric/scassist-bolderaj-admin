@@ -18,6 +18,8 @@ import AddArticle from "./pages/AddArticle";
 import EditArticle from "./pages/EditArticle";
 import Invoices from "./pages/Invoices";
 import CreateInvoice from "./pages/CreateInvoice";
+import PickInvoiceUser from "./pages/PickInvoiceUser";
+import PickInvoiceCompany from "./pages/PickInvoiceCompany";
 
 const router = createBrowserRouter([
   {
@@ -82,6 +84,14 @@ const router = createBrowserRouter([
           {
             path: "invoices/create",
             Component: CreateInvoice,
+          },
+          {
+            path: "invoices/create/pickuser",
+            Component: PickInvoiceUser,
+          },
+          {
+            path: "invoices/create/pickcompany",
+            Component: PickInvoiceCompany,
           },
         ],
       },
