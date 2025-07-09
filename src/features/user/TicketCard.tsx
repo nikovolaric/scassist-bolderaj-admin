@@ -2,11 +2,17 @@ import {
   CheckIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  PencilIcon,
+  TrashIcon,
 } from "@heroicons/react/24/outline";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState, type Dispatch, type SetStateAction } from "react";
 import { useParams } from "react-router";
-import { validateTicket } from "../../services/ticketAPI";
+import {
+  deleteTicket,
+  updateTicket,
+  validateTicket,
+} from "../../services/ticketAPI";
 
 function TicketCard({
   ticket,
@@ -24,9 +30,15 @@ function TicketCard({
 }) {
   const { id } = useParams();
   const queryClient = useQueryClient();
+
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenConfirm, setIsOpenConfirm] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isEditVisits, setIsEditVisits] = useState(false);
+  const [isEditValid, setIsEditValid] = useState(false);
+  const [newVisits, setNewVisits] = useState("");
+  const [newValidUntil, setNewValidUntil] = useState("");
+
   const { name, validUntil, visits, visitsLeft, duration, type, used, _id } =
     ticket;
 
@@ -49,10 +61,39 @@ function TicketCard({
     [isSuccess, id, queryClient],
   );
 
+  async function handleEdit() {
+    const data: { visitsLeft?: string; validUntil?: string } = {};
+
+    if (newVisits) {
+      data.visitsLeft = newVisits;
+    }
+
+    if (newValidUntil) {
+      data.validUntil = newValidUntil;
+    }
+
+    await updateTicket(_id, data);
+
+    setNewVisits("");
+    setNewValidUntil("");
+    setIsEditVisits(false);
+    setIsEditValid(false);
+    queryClient.invalidateQueries({ queryKey: ["userTickets"] });
+  }
+
+  async function handleDelete() {
+    await deleteTicket(_id);
+    queryClient.invalidateQueries({ queryKey: ["userTickets"] });
+  }
+
   return (
     <div
       className="border-gray/80 bg-neutral relative flex cursor-pointer flex-col rounded-xl border p-4"
-      onClick={() => setIsOpen((isOpen) => !isOpen)}
+      onClick={() => {
+        setIsOpen((isOpen) => !isOpen);
+        setIsEditVisits(false);
+        setIsEditValid(false);
+      }}
     >
       <div className="flex items-center justify-between">
         <p className="text-lg font-semibold">{name.sl}</p>
@@ -85,24 +126,90 @@ function TicketCard({
                     : duration - diffInDays
               }
             />
-            <p className="self-end text-sm">
-              {type === "dnevna"
-                ? "Preostane še 1 vstopnica"
-                : type === "paket"
-                  ? `${visitsLeft === 1 ? "Preostane" : visitsLeft === 2 ? "Preostaneta" : "Preostane"} še ${visitsLeft} ${visitsLeft === 1 ? "vstopnica" : visitsLeft === 2 ? "vstopnici" : "vstopnic"}.`
-                  : used
-                    ? `Preostane še ${diffInDays} ${diffInDays === 1 ? "dan" : "dni"}.`
-                    : "Vstopnica še ni aktivirana."}
+            <p className="relative self-end text-sm">
+              {type === "dnevna" ? (
+                "Preostane še 1 vstopnica"
+              ) : type === "paket" ? (
+                <span className="flex items-center gap-2">
+                  {`${visitsLeft === 1 ? "Preostane" : visitsLeft === 2 ? "Preostaneta" : "Preostane"} še ${visitsLeft} ${visitsLeft === 1 ? "vstopnica" : visitsLeft === 2 ? "vstopnici" : "vstopnic"}.`}{" "}
+                  <PencilIcon
+                    className="h-3 stroke-2"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsEditVisits(true);
+                    }}
+                  />
+                  {isEditVisits && (
+                    <span
+                      className="absolute flex items-center gap-2 rounded-xl bg-white p-4 shadow-sm"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <input
+                        type="number"
+                        className="w-10 outline-none"
+                        onChange={(e) => setNewVisits(e.target.value)}
+                        defaultValue={visitsLeft}
+                      />
+                      <button
+                        className="bg-gray cursor-pointer rounded-lg px-2 font-semibold shadow-xs"
+                        onClick={handleEdit}
+                      >
+                        Shrani
+                      </button>
+                    </span>
+                  )}
+                </span>
+              ) : used ? (
+                `Preostane še ${diffInDays} ${diffInDays === 1 ? "dan" : "dni"}.`
+              ) : (
+                "Vstopnica še ni aktivirana."
+              )}
             </p>
           </div>
-          <p className="border-gray/80 self-start rounded-lg border bg-white px-2 py-0.5 text-sm font-medium text-black/75 shadow-xs">
+          <p className="border-gray/80 relative flex items-center gap-2 self-start rounded-lg border bg-white px-2 py-0.5 text-sm font-medium text-black/75 shadow-xs">
             Velja do{" "}
             {new Date(validUntil).toLocaleDateString("sl-SI", {
               day: "2-digit",
               month: "2-digit",
               year: "numeric",
-            })}
+            })}{" "}
+            <PencilIcon
+              className="h-3 stroke-2"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsEditValid(true);
+              }}
+            />
+            {isEditValid && (
+              <span
+                className="absolute flex items-center gap-2 rounded-xl bg-white p-4 shadow-sm"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <input
+                  type="date"
+                  className="w-fit outline-none"
+                  onChange={(e) => setNewValidUntil(e.target.value)}
+                  defaultValue={new Date(validUntil).toLocaleDateString(
+                    "sv-SE",
+                    { day: "2-digit", month: "2-digit", year: "numeric" },
+                  )}
+                />
+                <button
+                  className="bg-gray cursor-pointer rounded-lg px-2 font-semibold shadow-xs"
+                  onClick={handleEdit}
+                >
+                  Shrani
+                </button>
+              </span>
+            )}
           </p>
+          <TrashIcon
+            className="h-6 self-end stroke-3"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete();
+            }}
+          />
         </>
       )}
       {isOpenConfirm && (

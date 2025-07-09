@@ -2,10 +2,10 @@ import {
   ChevronRightIcon,
   MinusIcon,
   PlusIcon,
+  XMarkIcon,
 } from "@heroicons/react/24/outline";
-import LinkBtn from "../../components/LinkBtn";
 import { useParams } from "react-router";
-import { useQueries, useQueryClient } from "@tanstack/react-query";
+import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   changeUserRole,
   getOneUser,
@@ -13,10 +13,16 @@ import {
 } from "../../services/userAPI";
 import { getUserUnpaidPreinvoices } from "../../services/preInvoicesAPI";
 import { useState, type Dispatch, type SetStateAction } from "react";
+import Spinner from "../../components/Spinner";
+import { getArticles } from "../../services/articlesAPI";
+import { createTicket } from "../../services/ticketAPI";
 
 function UserInfo() {
-  const [isOpen, setIsOpen] = useState(false);
   const { id } = useParams();
+
+  const [isOpenArticles, setIsOpenArticles] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+
   const [
     { data, isPending },
     { data: preInvoiceData, isPending: isPendingPreInvoice },
@@ -116,13 +122,20 @@ function UserInfo() {
             setIsOpen={setIsOpen}
           />
         )}
-        <LinkBtn to={`/dashboard/users/${id}/articles`} type="primary">
-          <p className="flex items-center gap-2">
-            {" "}
-            Prodaja artikla
-            <PlusIcon className="h-4 stroke-3" />
-          </p>
-        </LinkBtn>
+        <button
+          className="from-primary to-secondary drop-shadow-btn hover:to-primary flex cursor-pointer items-center gap-2 rounded-lg bg-gradient-to-r px-4 py-3 font-semibold transition-colors duration-300"
+          onClick={() => setIsOpenArticles(true)}
+        >
+          {" "}
+          Dodeli vstopnico
+          <PlusIcon className="h-4 stroke-3" />
+        </button>
+        {isOpenArticles && (
+          <PickArticle
+            setIsOpenArticles={setIsOpenArticles}
+            ageGroup={data.data.ageGroup}
+          />
+        )}
         {!isPendingPreInvoice && preInvoiceData.results > 0 && (
           <div className="drop-shadow-input absolute -top-[110%] right-0 flex w-103 items-center gap-5 rounded-lg border border-red-700 bg-white px-5 py-2.5">
             <p className="from-primary to-secondary drop-shdaow-btn flex h-6 w-6 items-center justify-center rounded-lg bg-gradient-to-r">
@@ -242,6 +255,90 @@ function ChangeRole({
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+function PickArticle({
+  setIsOpenArticles,
+  ageGroup,
+}: {
+  ageGroup: string[];
+  setIsOpenArticles: Dispatch<SetStateAction<boolean>>;
+}) {
+  const { id } = useParams();
+  const queryClient = useQueryClient();
+
+  const { data, isPending } = useQuery({
+    queryKey: ["articles"],
+    queryFn: () => getArticles("", ageGroup[0], "V"),
+  });
+
+  async function handleClick(article: string) {
+    if (id) {
+      await createTicket({ user: id, article });
+    }
+
+    queryClient.invalidateQueries({ queryKey: ["userTickets"] });
+    setIsOpenArticles(false);
+  }
+
+  if (isPending) {
+    return (
+      <div className="fixed top-0 left-0 h-dvh w-dvw bg-black/50">
+        <Spinner />
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed top-0 left-0 z-50 h-dvh w-dvw overflow-y-scroll bg-black/50">
+      <XMarkIcon
+        className="absolute top-8 right-8 h-8 cursor-pointer stroke-3 text-white"
+        onClick={() => setIsOpenArticles(false)}
+      />
+      <div className="mx-auto my-20 w-full max-w-7xl rounded-xl bg-white p-8">
+        {data.articles.map(
+          (article: {
+            _id: string;
+            priceDDV: number;
+            ageGroup: string[];
+            name: { sl: string };
+          }) => (
+            <div
+              className="grid grid-cols-[5fr_5fr_2fr] gap-x-5 rounded-xl bg-white p-6"
+              key={article._id}
+            >
+              <p className="font-quicksand text-lg font-bold uppercase">
+                {article.name.sl}
+              </p>
+              <div className="grid grid-cols-[128px_128px_96px_96px_32px] gap-5">
+                <p className="bg-primary/85 flex h-8 w-32 items-center justify-center rounded-lg font-semibold">
+                  {new Intl.NumberFormat("sl-SI", {
+                    style: "currency",
+                    currency: "EUR",
+                  }).format(article.priceDDV)}
+                </p>
+                <p className="outline-secondary flex h-8 w-32 items-center justify-center rounded-md font-medium outline-2">
+                  {article.ageGroup.includes("adult")
+                    ? "Odrasli"
+                    : article.ageGroup.includes("student")
+                      ? "15 - 25 let"
+                      : article.ageGroup.includes("school")
+                        ? "6 - 14 let"
+                        : "3 - 5 let"}
+                </p>
+              </div>
+              <button
+                className="from-primary to-secondary hover:to-primary flex cursor-pointer items-center justify-center rounded-lg bg-gradient-to-r px-4 py-1.5 font-semibold transition-colors duration-300"
+                onClick={() => handleClick(article._id)}
+              >
+                Dodaj vstopnico
+              </button>
+            </div>
+          ),
+        )}
+      </div>
     </div>
   );
 }
