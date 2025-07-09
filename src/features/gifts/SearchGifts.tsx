@@ -99,6 +99,13 @@ function Filter({
 }) {
   return (
     <div className="grid grid-cols-3 gap-x-5">
+      <Link
+        to="/dashboard/gifts/create"
+        className={`from-primary to-secondary drop-shadow-btn flex w-49 cursor-pointer items-center justify-center gap-2 rounded-lg bg-gradient-to-r py-2.5 text-center font-semibold transition-opacity duration-150 hover:opacity-80`}
+      >
+        <PlusCircleIcon className="w-5 flex-none stroke-2" /> Ustvari darilne
+        bone
+      </Link>
       <button
         className={`w-49 cursor-pointer rounded-lg bg-white py-2.5 text-center ${!used ? "border-secondary border-2 shadow-[inset_1px_2px_4px_rgba(0,0,0,0.25)]" : "shadow-xs"}`}
         onClick={() => {
@@ -117,13 +124,6 @@ function Filter({
       >
         Pretečeni boni
       </button>
-      <Link
-        to="/"
-        className={`from-primary to-secondary flex w-49 cursor-pointer items-center justify-center gap-2 rounded-lg bg-gradient-to-r py-2.5 text-center font-semibold shadow-xs transition-opacity duration-150 hover:opacity-80`}
-      >
-        <PlusCircleIcon className="w-5 flex-none stroke-2" /> Ustvari darilne
-        bone
-      </Link>
     </div>
   );
 }

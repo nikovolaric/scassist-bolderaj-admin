@@ -95,3 +95,60 @@ export async function confirmGift(id: string, userId: string) {
     return error as Error;
   }
 }
+
+export async function generateGiftCodes(bodyData: {
+  label: string;
+  article: string;
+  quantity: string;
+  expires?: string;
+}) {
+  try {
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/gifts/generatecodes`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+        body: JSON.stringify(bodyData),
+      },
+    );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      if (data.status === "error") {
+        throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
+      }
+      throw Error(data.message);
+    }
+
+    return data;
+  } catch (error) {
+    return error as Error;
+  }
+}
+
+export async function deleteGift(id: string) {
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/gifts/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      if (data.status === "error") {
+        throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
+      }
+      throw Error(data.message);
+    }
+
+    return data;
+  } catch (error) {
+    return error as Error;
+  }
+}
