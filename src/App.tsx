@@ -20,6 +20,8 @@ import Invoices from "./pages/Invoices";
 import CreateInvoice from "./pages/CreateInvoice";
 import PickInvoiceUser from "./pages/PickInvoiceUser";
 import PickInvoiceCompany from "./pages/PickInvoiceCompany";
+import Gifts from "./pages/Gifts";
+import ConfirmGift from "./pages/ConfirmGift";
 
 const router = createBrowserRouter([
   {
@@ -92,6 +94,14 @@ const router = createBrowserRouter([
           {
             path: "invoices/create/pickcompany",
             Component: PickInvoiceCompany,
+          },
+          {
+            path: "gifts",
+            Component: Gifts,
+          },
+          {
+            path: "gifts/:id",
+            Component: ConfirmGift,
           },
         ],
       },

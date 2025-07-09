@@ -18,6 +18,9 @@ function Dashboard() {
         <Link to="/dashboard/companies" className="text-blue-500 underline">
           Podjetja
         </Link>
+        <Link to="/dashboard/gifts" className="text-blue-500 underline">
+          Darilni boni
+        </Link>
       </ul>
     </div>
   );
