@@ -5,6 +5,7 @@ import TicketsAndClasses from "../features/user/TicketsAndClasses";
 import UserChildren from "../features/user/UserChildren";
 import UserInfo from "../features/user/UserInfo";
 import UserInvoices from "../features/user/UserInvoices";
+import UserParent from "../features/user/UserParent";
 import UserPreInvoices from "../features/user/UserPreInvoices";
 import VisitsAndUserInfo from "../features/user/VisitsAndUserInfo";
 
@@ -18,6 +19,7 @@ function User() {
       <VisitsAndUserInfo />
       <UserPreInvoices />
       <UserInvoices />
+      <UserParent />
       <UserChildren />
       <AdditionalInfo />
     </div>

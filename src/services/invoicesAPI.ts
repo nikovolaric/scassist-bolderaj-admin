@@ -136,18 +136,20 @@ export async function getInvoicesTotalSum({
   article,
   buyer,
   taxNo,
+  deviceNo,
 }: {
-  dateFrom: string;
-  dateTo: string;
-  dateFromDone: string;
-  dateToDone: string;
-  issuer: string;
-  totalAmount: string;
-  paymentMethod: string;
-  label: string;
-  article: string;
-  buyer: string;
-  taxNo: string;
+  dateFrom?: string;
+  dateTo?: string;
+  dateFromDone?: string;
+  dateToDone?: string;
+  issuer?: string;
+  totalAmount?: string;
+  paymentMethod?: string;
+  label?: string;
+  article?: string;
+  buyer?: string;
+  taxNo?: string;
+  deviceNo?: string;
 }) {
   try {
     const params = new URLSearchParams();
@@ -163,6 +165,7 @@ export async function getInvoicesTotalSum({
     if (article) params.append("article", article);
     if (buyer) params.append("buyerFullName", buyer);
     if (taxNo) params.append("taxNo", taxNo);
+    if (deviceNo) params.append("invoiceData.deviceNo", deviceNo);
 
     const res = await fetch(
       `${import.meta.env.VITE_API_URL}/invoices/totalamountsum?${params.toString()}`,

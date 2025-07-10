@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import Header from "../components/Header";
+import DailyStats from "../features/dashboard/DailyStats";
 
 function Dashboard() {
   return (
@@ -21,7 +22,13 @@ function Dashboard() {
         <Link to="/dashboard/gifts" className="text-blue-500 underline">
           Darilni boni
         </Link>
+        <Link to="/dashboard/cashregister" className="text-blue-500 underline">
+          Pregled dnevne blagajne
+        </Link>
       </ul>
+      <div className="grid grid-cols-[2fr_1fr]">
+        <DailyStats />
+      </div>
     </div>
   );
 }

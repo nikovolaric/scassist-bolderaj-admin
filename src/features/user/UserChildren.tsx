@@ -22,7 +22,7 @@ function UserChildren() {
     return (
       <div>
         <p className="text-sm font-medium">Mladoletne osebe</p>
-        <div>
+        <div className="flex items-center gap-4">
           {data.children.map(
             ({
               child,

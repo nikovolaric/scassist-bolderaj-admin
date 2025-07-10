@@ -23,6 +23,7 @@ import PickInvoiceCompany from "./pages/PickInvoiceCompany";
 import Gifts from "./pages/Gifts";
 import ConfirmGift from "./pages/ConfirmGift";
 import CreateGift from "./pages/CreateGift";
+import CashRegister from "./pages/CashRegister";
 
 const router = createBrowserRouter([
   {
@@ -107,6 +108,10 @@ const router = createBrowserRouter([
           {
             path: "gifts/create",
             Component: CreateGift,
+          },
+          {
+            path: "cashregister",
+            Component: CashRegister,
           },
         ],
       },
