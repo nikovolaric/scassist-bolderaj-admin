@@ -82,8 +82,10 @@ function TicketCard({
   }
 
   async function handleDelete() {
-    await deleteTicket(_id);
-    queryClient.invalidateQueries({ queryKey: ["userTickets"] });
+    if (id) {
+      await deleteTicket(_id, { user: id });
+      queryClient.invalidateQueries({ queryKey: ["userTickets"] });
+    }
   }
 
   return (

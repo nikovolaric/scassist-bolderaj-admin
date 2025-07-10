@@ -120,11 +120,16 @@ export async function updateTicket(id: string, bodyData: unknown) {
   }
 }
 
-export async function deleteTicket(id: string) {
+export async function deleteTicket(id: string, bodyData: { user: string }) {
   try {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/tickets/${id}`, {
       method: "DELETE",
       credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        accept: "application/json",
+      },
+      body: JSON.stringify(bodyData),
     });
     const data = await res.json();
 
