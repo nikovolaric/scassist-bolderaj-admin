@@ -1,11 +1,12 @@
 import { Suspense, useEffect } from "react";
 import Spinner from "../components/Spinner";
-import { Navigate, Outlet, useLocation } from "react-router";
+import { Navigate, Outlet, useLocation, useNavigate } from "react-router";
 import { useQuery } from "@tanstack/react-query";
 import { getMe } from "../services/userAPI";
 
 function DashboardLayout() {
   const { pathname } = useLocation();
+  const navigate = useNavigate();
 
   const { data, isPending } = useQuery({
     queryKey: ["me"],
@@ -14,6 +15,9 @@ function DashboardLayout() {
 
   useEffect(
     function () {
+      if (data && !data.roles.includes("admin")) {
+        navigate("/");
+      }
       if (!pathname.startsWith("/dashboard/invoices/create")) {
         localStorage.removeItem("buyer");
         localStorage.removeItem("company");
