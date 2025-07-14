@@ -269,3 +269,35 @@ export async function createInvoice(bodyData: unknown) {
     return error as Error;
   }
 }
+
+export async function getMonthlyReport(bodyData: unknown) {
+  try {
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/invoices/getmothlyaccountingreport`,
+      {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+        body: JSON.stringify(bodyData),
+      },
+    );
+
+    if (!res.ok) {
+      const data = await res.json();
+      if (data.status === "error") {
+        throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
+      }
+      throw Error(data.message);
+    }
+
+    const blob = await res.blob();
+
+    const url = URL.createObjectURL(blob);
+    window.open(url, "_blank");
+  } catch (error) {
+    return error as Error;
+  }
+}
