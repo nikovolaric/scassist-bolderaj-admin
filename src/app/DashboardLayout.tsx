@@ -15,7 +15,7 @@ function DashboardLayout() {
 
   useEffect(
     function () {
-      if (data && !data.roles.includes("admin")) {
+      if (data && !data.role.includes("admin")) {
         navigate("/");
       }
       if (!pathname.startsWith("/dashboard/invoices/create")) {
