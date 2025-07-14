@@ -68,28 +68,32 @@ export async function getAllInvoices({
   article,
   buyer,
   taxNo,
+  limit,
+  issuerId,
 }: {
   q: string;
-  page: number;
-  dateFrom: string;
-  dateTo: string;
-  dateFromDone: string;
-  dateToDone: string;
-  issuer: string;
-  totalAmount: string;
-  paymentMethod: string;
-  label: string;
-  article: string;
-  buyer: string;
-  taxNo: string;
+  page?: number;
+  dateFrom?: string;
+  dateTo?: string;
+  dateFromDone?: string;
+  dateToDone?: string;
+  issuer?: string;
+  totalAmount?: string;
+  paymentMethod?: string;
+  label?: string;
+  article?: string;
+  buyer?: string;
+  taxNo?: string;
+  limit?: number;
+  issuerId?: string;
 }) {
   try {
     const params = new URLSearchParams();
 
     params.append("q", q);
     params.append("sort", "-invoiceDate");
-    params.append("limit", "30");
-    params.append("page", page.toString());
+    params.append("limit", limit ? limit.toString() : "30");
+    if (page) params.append("page", page.toString());
     if (dateFrom) params.append("dateFrom", dateFrom);
     if (dateTo) params.append("dateTo", dateTo);
     if (dateFromDone) params.append("dateFromDone", dateFromDone);
@@ -101,6 +105,7 @@ export async function getAllInvoices({
     if (article) params.append("article", article);
     if (buyer) params.append("buyerFullName", buyer);
     if (taxNo) params.append("taxNo", taxNo);
+    if (issuerId) params.append("issuerId", issuerId);
 
     const res = await fetch(
       `${import.meta.env.VITE_API_URL}/invoices?${params.toString()}`,
