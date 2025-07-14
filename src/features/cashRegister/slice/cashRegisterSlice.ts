@@ -3,6 +3,7 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 interface ICashRegister {
   date: string;
   user: string;
+  userName: string;
 }
 
 const initialState: ICashRegister = {
@@ -12,6 +13,7 @@ const initialState: ICashRegister = {
     year: "numeric",
   }),
   user: "",
+  userName: "",
 };
 
 const cashRegisterSlice = createSlice({
@@ -21,11 +23,14 @@ const cashRegisterSlice = createSlice({
     changeDate(state, action: PayloadAction<string>) {
       state.date = action.payload;
     },
-    changeUser(state, action: PayloadAction<string>) {
-      if (state.user === action.payload) {
+    changeUser(state, action: PayloadAction<{ id: string; fullName: string }>) {
+      const { id, fullName } = action.payload;
+      if (state.user === id) {
         state.user = "";
+        state.userName = "";
       } else {
-        state.user = action.payload;
+        state.user = id;
+        state.userName = fullName;
       }
     },
     reset() {

@@ -8,7 +8,10 @@ function CashRegisterInfo() {
 
   return (
     <div className="flex flex-col gap-12">
-      <p className="text-3xl font-semibold">Pregled dnevne blagajne</p>
+      <p className="text-3xl font-semibold">
+        Pregled dnevne blagajne{" "}
+        {cashRegister.user ? `- za ${cashRegister.userName}` : ""}
+      </p>
       <div>
         <p>Izberi datum</p>
         <input

@@ -16,7 +16,7 @@ export async function getCashRegisterRecords({
     }
 
     if (user) {
-      params.append("issuer", user);
+      params.append("user", user);
     }
 
     const res = await fetch(
