@@ -69,7 +69,7 @@ function GiftCard({
         className="bg-primary hover:bg-primary/80 h-10 w-10 cursor-pointer justify-items-center rounded-lg shadow-xs transition-colors duration-300"
         onClick={handleDelete}
       >
-        <TrashIcon className="h-5 stroke-3" />
+        <TrashIcon className="h-5 stroke-2" />
       </button>
     </div>
   );

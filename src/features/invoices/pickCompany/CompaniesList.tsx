@@ -1,7 +1,7 @@
 import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import { getAllCompanies } from "../../../services/companiesAPI";
 import Spinner from "../../../components/Spinner";
 
@@ -73,12 +73,17 @@ function CompanyListCard({
   };
   i: number;
 }) {
+  const { pathname } = useLocation();
   const navigate = useNavigate();
 
   function handleClick() {
     localStorage.setItem("company", company._id);
 
-    navigate("/dashboard/invoices/create");
+    if (pathname.includes("invoices/createpreinvoice")) {
+      navigate("/dashboard/invoices/createpreinvoice");
+    } else {
+      navigate("/dashboard/invoices/create");
+    }
   }
 
   return (
@@ -90,7 +95,9 @@ function CompanyListCard({
         className="from-primary to-secondary drop-shadow-btn hover:to-primary cursor-pointer rounded-lg bg-gradient-to-r px-10 py-2 font-semibold transition-colors duration-300"
         onClick={handleClick}
       >
-        Dodaj podjetje na račun.
+        Dodaj podjetje na{" "}
+        {pathname.includes("invoices/createpreinvoice") ? "predračun" : "račun"}
+        .
       </button>
     </div>
   );

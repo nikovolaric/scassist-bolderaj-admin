@@ -50,24 +50,13 @@ export async function openPreInvoice(id: string) {
   }
 }
 
-export async function createInvoiceFromPreInvoice({
-  id,
-  paymentMethod,
-}: {
-  id: string;
-  paymentMethod: string;
-}) {
+export async function createInvoiceFromPreInvoice({ id }: { id: string }) {
   try {
     const res = await fetch(
-      `${import.meta.env.VITE_API_URL}/preinvoices/createinvoicereception/${id}`,
+      `${import.meta.env.VITE_API_URL}/preinvoices/createinvoice/${id}`,
       {
         method: "POST",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          accept: "application/json",
-        },
-        body: JSON.stringify({ paymentMethod }),
       },
     );
 
@@ -133,6 +122,35 @@ export async function getAllPreinvoices(q: string, page: number) {
 
     if (!res.ok) {
       const data = await res.json();
+      if (data.status === "error") {
+        throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
+      }
+      throw Error(data.message);
+    }
+
+    const data = await res.json();
+
+    return data;
+  } catch (error) {
+    return error as Error;
+  }
+}
+
+export async function createPreInvoice(bodyData: unknown) {
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/preinvoices`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        accept: "application/json",
+      },
+      body: JSON.stringify(bodyData),
+    });
+
+    if (!res.ok) {
+      const data = await res.json();
+      console.log(data);
       if (data.status === "error") {
         throw new Error("Napaka na strežniku! Prosim poskusite kasneje.");
       }

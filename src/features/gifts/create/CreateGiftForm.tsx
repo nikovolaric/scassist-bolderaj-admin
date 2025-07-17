@@ -130,7 +130,7 @@ function PickArticle({
 }) {
   const { data, isPending } = useQuery({
     queryKey: ["articles"],
-    queryFn: () => getArticles(""),
+    queryFn: () => getArticles({}),
   });
 
   function handleClick(id: string) {

@@ -17,7 +17,7 @@ function UserList() {
     queries: [
       {
         queryKey: ["users", page, lastName],
-        queryFn: () => getAllUsers(page, 30, lastName),
+        queryFn: () => getAllUsers({ page, lastName }),
       },
     ],
   });

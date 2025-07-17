@@ -1,5 +1,5 @@
 import { UserCircleIcon } from "@heroicons/react/24/outline";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 
 function UserListCard({
   user,
@@ -13,12 +13,17 @@ function UserListCard({
   };
   i: number;
 }) {
+  const { pathname } = useLocation();
   const navigate = useNavigate();
 
   function handleClick() {
     localStorage.setItem("buyer", user._id);
 
-    navigate("/dashboard/invoices/create");
+    if (pathname.includes("invoices/createpreinvoice")) {
+      navigate("/dashboard/invoices/createpreinvoice");
+    } else {
+      navigate("/dashboard/invoices/create");
+    }
   }
 
   return (
@@ -43,7 +48,9 @@ function UserListCard({
         className="from-primary to-secondary drop-shadow-btn hover:to-primary cursor-pointer rounded-lg bg-gradient-to-r px-10 py-2 font-semibold transition-colors duration-300"
         onClick={handleClick}
       >
-        Dodaj uporabnika na račun.
+        Dodaj uporabnika na{" "}
+        {pathname.includes("invoices/createpreinvoice") ? "predračun" : "račun"}
+        .
       </button>
     </div>
   );

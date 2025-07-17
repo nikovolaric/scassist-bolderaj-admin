@@ -21,18 +21,24 @@ export async function getMe() {
   }
 }
 
-export async function getAllUsers(
-  page: number,
-  limit: number,
-  lastName: string,
-  roles?: string[],
-) {
+export async function getAllUsers({
+  page = 1,
+  limit = 30,
+  lastName,
+  roles,
+}: {
+  page?: number;
+  limit?: number;
+  lastName?: string;
+  roles?: string[];
+}) {
   try {
     const params = new URLSearchParams();
 
     params.append("page", page.toString());
     params.append("limit", limit.toString());
-    params.append("lastName", lastName);
+
+    if (lastName) params.append("lastName", lastName);
 
     if (roles) {
       if (roles.length > 0) params.append("role", roles.toString());

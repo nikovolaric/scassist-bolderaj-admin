@@ -16,19 +16,18 @@ import {
 } from "@heroicons/react/24/outline";
 import { getArticles, getOneArticle } from "../../services/articlesAPI";
 import Spinner from "../../components/Spinner";
-import { createInvoice } from "../../services/invoicesAPI";
 import { getOneCompany } from "../../services/companiesAPI";
+import { createPreInvoice } from "../../services/preInvoicesAPI";
 
 interface IInitialState {
   category: string;
+  preInvoiceDate: string;
   paymentDueDate: string;
-  serviceCompletionDate: string;
   articles: {
     articleId: string;
     quantity?: number;
     discount?: number;
   }[];
-  paymentMethod: string;
   buyer?: string;
   recepient?: {
     name: string;
@@ -45,14 +44,12 @@ interface IInitialState {
     taxNumber: string;
     email?: string;
   };
-  issuer?: string;
 }
 
 type Action =
   | { type: "category"; payload: string }
-  | { type: "serviceCompletionDate"; payload: string }
+  | { type: "preInvoiceDate"; payload: string }
   | { type: "paymentDueDate"; payload: string }
-  | { type: "paymentMethod"; payload: string }
   | {
       type: "articles";
       payload: { articleId: string; quantity?: number; discount?: number };
@@ -62,7 +59,6 @@ type Action =
       payload: string;
     }
   | { type: "buyer"; payload: string }
-  | { type: "issuer"; payload: string }
   | {
       type: "recepient";
       payload: {
@@ -92,9 +88,8 @@ type Action =
 
 const initialState: IInitialState = {
   category: "person",
+  preInvoiceDate: "",
   paymentDueDate: "",
-  serviceCompletionDate: "",
-  paymentMethod: "",
   articles: [],
 };
 
@@ -105,15 +100,11 @@ function reducer(state: IInitialState, action: Action): IInitialState {
 
       return { ...state, category: action.payload };
     }
-
-    case "serviceCompletionDate": {
-      return { ...state, serviceCompletionDate: action.payload };
+    case "preInvoiceDate": {
+      return { ...state, preInvoiceDate: action.payload };
     }
     case "paymentDueDate": {
       return { ...state, paymentDueDate: action.payload };
-    }
-    case "paymentMethod": {
-      return { ...state, paymentMethod: action.payload };
     }
     case "articles": {
       const { articleId, quantity, discount } = action.payload;
@@ -154,9 +145,6 @@ function reducer(state: IInitialState, action: Action): IInitialState {
     case "buyer": {
       return { ...state, buyer: action.payload };
     }
-    case "issuer": {
-      return { ...state, issuer: action.payload };
-    }
     case "recepient": {
       return { ...state, recepient: action.payload };
     }
@@ -187,7 +175,7 @@ function reducer(state: IInitialState, action: Action): IInitialState {
   }
 }
 
-function CreateInvoiceForm() {
+function CreatePreInvoiceForm() {
   const navigate = useNavigate();
 
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -202,29 +190,19 @@ function CreateInvoiceForm() {
     }
   }, []);
 
-  const {
-    buyer,
-    recepient,
-    paymentDueDate,
-    serviceCompletionDate,
-    articles,
-    paymentMethod,
-    company,
-  } = state;
+  const { buyer, recepient, paymentDueDate, articles, company } = state;
 
-  async function handleCreateInvoice() {
+  async function handleCreatePreInvoice() {
     try {
       setIsLoading(true);
 
       if (!state.buyer && !state.recepient && !state.company) return;
 
-      const data = await createInvoice({
+      const data = await createPreInvoice({
         buyer,
         recepient,
-        paymentDueDate,
-        serviceCompletionDate,
+        dueDate: paymentDueDate,
         articles,
-        paymentMethod,
         company,
       });
 
@@ -245,18 +223,18 @@ function CreateInvoiceForm() {
   return (
     <>
       <div className="flex items-center justify-between">
-        <p className="text-3xl font-semibold">Ustvari račun</p>
+        <p className="text-3xl font-semibold">Ustvari predračun</p>
         <div className="flex items-center gap-5">
           {state.category === "person" ? (
             <Link
-              to="/dashboard/invoices/create/pickuser"
+              to="/dashboard/invoices/createpreinvoice/pickuser"
               className="bg-primary drop-shadow-btn hover:bg-primary/90 flex w-fit flex-none items-center rounded-lg px-4 py-1.5 font-semibold transition-colors duration-150"
             >
               Poišči uporabniški profil
             </Link>
           ) : (
             <Link
-              to="/dashboard/invoices/create/pickcompany"
+              to="/dashboard/invoices/createpreinvoice/pickcompany"
               className="bg-primary drop-shadow-btn hover:bg-primary/90 flex w-fit flex-none items-center rounded-lg px-4 py-1.5 font-semibold transition-colors duration-150"
             >
               Poišči profil podjetja
@@ -293,10 +271,10 @@ function CreateInvoiceForm() {
         <div className="col-span-2 justify-self-end">
           <button
             className="from-primary to-secondary drop-shadow-btn hover:to-primary cursor-pointer rounded-lg bg-gradient-to-r px-10 py-1.5 font-semibold transition-colors duration-200 disabled:cursor-not-allowed disabled:from-gray-400 disabled:to-gray-400"
-            onClick={handleCreateInvoice}
+            onClick={handleCreatePreInvoice}
             disabled={isLoading}
           >
-            Shrani in ustvari račun
+            Shrani in ustvari predračun
           </button>
           {err && <p>{err}</p>}
         </div>
@@ -527,29 +505,16 @@ function NameSectionCompany({ dispatch }: { dispatch: Dispatch<Action> }) {
 
 function Dates({ dispatch }: { dispatch: Dispatch<Action> }) {
   return (
-    <div className="grid grid-cols-2 gap-x-5 gap-y-10">
+    <div className="grid gap-x-5 gap-y-10">
       <div>
         <p>Datum izdaje</p>
         <div className="rounded-xl bg-white px-5 py-6">
           <input
             type="date"
             className="w-full rounded-lg border border-gray-300 px-3 py-1.5 shadow-xs outline-none disabled:cursor-not-allowed"
-            disabled
             defaultValue={new Intl.DateTimeFormat("sv-SE").format(new Date())}
-          />
-        </div>
-      </div>
-      <div>
-        <p>Datum opravljene storitve</p>
-        <div className="rounded-xl bg-white px-5 py-6">
-          <input
-            type="date"
-            className="w-full rounded-lg border border-gray-300 px-3 py-1.5 shadow-xs outline-none"
             onChange={(e) =>
-              dispatch({
-                type: "serviceCompletionDate",
-                payload: e.target.value,
-              })
+              dispatch({ type: "preInvoiceDate", payload: e.target.value })
             }
           />
         </div>
@@ -862,25 +827,7 @@ function EndPart({
           />
         </div>
       </div>{" "}
-      <div>
-        <p>Način plačila</p>
-        <div className="rounded-xl bg-white px-5 py-6">
-          <select
-            className="w-full cursor-pointer rounded-lg border border-gray-300 px-2 py-1 shadow-xs outline-none"
-            defaultValue={state.paymentMethod}
-            onChange={(e) =>
-              dispatch({ type: "paymentMethod", payload: e.target.value })
-            }
-          >
-            <option value="">Izberi način plačila</option>
-            <option value="gotovina">Gotovina</option>
-            <option value="card">Kartica</option>
-            <option value="online">Spletno plačilo</option>
-            <option value="paypal">Paypal</option>
-            <option value="nakazilo">Nakazilo</option>
-          </select>
-        </div>
-      </div>{" "}
+      <div />
       <div>
         <p>Skupni znesek (z DDV)</p>
         <div className="rounded-xl bg-white px-5 py-6">
@@ -899,4 +846,4 @@ function EndPart({
   );
 }
 
-export default CreateInvoiceForm;
+export default CreatePreInvoiceForm;

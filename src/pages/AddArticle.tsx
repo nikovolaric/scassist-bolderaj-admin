@@ -1,5 +1,5 @@
 import Header from "../components/Header";
-import AddArticleForm from "../features/Articles/AddArticleForm";
+import AddArticleForm from "../features/articles/AddArticleForm";
 
 function AddArticle() {
   return (

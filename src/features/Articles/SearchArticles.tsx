@@ -24,7 +24,7 @@ function SearchArticles() {
 
   const { data, isPending } = useQuery({
     queryKey: ["articles", name, ageGroup, label],
-    queryFn: () => getArticles(name, ageGroup, label),
+    queryFn: () => getArticles({ name, ageGroup, label }),
   });
 
   return (

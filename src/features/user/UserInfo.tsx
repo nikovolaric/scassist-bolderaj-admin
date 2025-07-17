@@ -271,7 +271,7 @@ function PickArticle({
 
   const { data, isPending } = useQuery({
     queryKey: ["articles"],
-    queryFn: () => getArticles("", ageGroup[0], "V"),
+    queryFn: () => getArticles({ ageGroup: ageGroup[0], label: "V" }),
   });
 
   async function handleClick(article: string) {

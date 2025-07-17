@@ -1,9 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import cashRegisterReducer from "../features/cashRegister/slice/cashRegisterSlice";
+import checkAttendanceReducer from "../features/classes/slices/checkAttendanceSlice";
 
 export const store = configureStore({
   reducer: {
     cashRegister: cashRegisterReducer,
+    checkAttendance: checkAttendanceReducer,
   },
 });
 

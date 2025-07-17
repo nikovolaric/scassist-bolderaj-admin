@@ -15,7 +15,7 @@ function GiftUserList() {
 
   const { data, isPending } = useQuery({
     queryKey: ["users", page, lastName],
-    queryFn: () => getAllUsers(page, 30, lastName),
+    queryFn: () => getAllUsers({ page, lastName }),
   });
 
   return (

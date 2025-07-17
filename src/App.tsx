@@ -24,6 +24,10 @@ import Gifts from "./pages/Gifts";
 import ConfirmGift from "./pages/ConfirmGift";
 import CreateGift from "./pages/CreateGift";
 import CashRegister from "./pages/CashRegister";
+import CreatePreInvoice from "./pages/CreatePreInvoice";
+import Classes from "./pages/Classes";
+import OneClass from "./pages/OneClass";
+import CreateClass from "./pages/CreateClass";
 
 const router = createBrowserRouter([
   {
@@ -98,6 +102,18 @@ const router = createBrowserRouter([
             Component: PickInvoiceCompany,
           },
           {
+            path: "invoices/createpreinvoice",
+            Component: CreatePreInvoice,
+          },
+          {
+            path: "invoices/createpreinvoice/pickuser",
+            Component: PickInvoiceUser,
+          },
+          {
+            path: "invoices/createpreinvoice/pickcompany",
+            Component: PickInvoiceCompany,
+          },
+          {
             path: "gifts",
             Component: Gifts,
           },
@@ -112,6 +128,18 @@ const router = createBrowserRouter([
           {
             path: "cashregister",
             Component: CashRegister,
+          },
+          {
+            path: "classes",
+            Component: Classes,
+          },
+          {
+            path: "classes/:classId",
+            Component: OneClass,
+          },
+          {
+            path: "classes/create",
+            Component: CreateClass,
           },
         ],
       },

@@ -1,14 +1,18 @@
-export async function getArticles(
-  name: string,
-  ageGroup?: string,
-  label?: string,
-) {
+export async function getArticles({
+  name,
+  ageGroup,
+  label,
+}: {
+  name?: string;
+  ageGroup?: string;
+  label?: string;
+}) {
   try {
     const params = new URLSearchParams();
 
-    params.append("name", name);
     params.append("sort", "name");
 
+    if (name) params.append("name", name);
     if (ageGroup) params.append("ageGroup", ageGroup);
     if (label) params.append("label", label);
 

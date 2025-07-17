@@ -25,6 +25,9 @@ function Dashboard() {
         <Link to="/dashboard/cashregister" className="text-blue-500 underline">
           Pregled dnevne blagajne
         </Link>
+        <Link to="/dashboard/classes" className="text-blue-500 underline">
+          Aktivnosti in vodene vadbe
+        </Link>
       </ul>
       <div className="grid grid-cols-[2fr_1fr]">
         <DailyStats />

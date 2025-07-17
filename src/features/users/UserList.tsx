@@ -20,7 +20,7 @@ function UserList() {
 
   const { data, isPending } = useQuery({
     queryKey: ["users", page, lastName, roles],
-    queryFn: () => getAllUsers(page, 30, lastName, roles),
+    queryFn: () => getAllUsers({ page, lastName, roles }),
   });
 
   function handleClick(role: string) {
