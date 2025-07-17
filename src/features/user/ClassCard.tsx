@@ -116,7 +116,7 @@ function ConfirmUseTicket({
       setIsLoading(true);
 
       if (id) {
-        await createInvoiceFromPreInvoice({ id, paymentMethod: checked });
+        await createInvoiceFromPreInvoice({ id });
       }
 
       queryClient.invalidateQueries({ queryKey: ["preInvoices", userId] });
