@@ -1,5 +1,5 @@
 import Header from "../components/Header";
-import SearchArticles from "../features/articles/SearchArticles";
+// import SearchArticles from "../features/articles/SearchArticles";
 
 function Articles() {
   return (
