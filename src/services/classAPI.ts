@@ -204,3 +204,40 @@ export async function deleteClass(id: string) {
     return error as Error;
   }
 }
+
+export async function removeUserFromClass({
+  id,
+  bodyData,
+}: {
+  id: string;
+  bodyData: unknown;
+}) {
+  try {
+    const res = await fetch(
+      `${import.meta.env.VITE_API_URL}/classes/${id}/removeuser`,
+      {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          accept: "application/json",
+        },
+        body: JSON.stringify(bodyData),
+      },
+    );
+    const data = await res.json();
+
+    if (!res.ok) {
+      if (data.status === "error") {
+        throw new Error(
+          "Nekaj je šlo narobe na strežniku! Poiskusite kasneje!",
+        );
+      }
+      throw Error(data.message);
+    }
+
+    return data;
+  } catch (error) {
+    return error as Error;
+  }
+}

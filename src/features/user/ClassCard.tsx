@@ -1,17 +1,18 @@
-import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  TrashIcon,
+} from "@heroicons/react/24/outline";
 import { useQueryClient } from "@tanstack/react-query";
 import { Link, useParams } from "react-router";
-import {
-  createInvoiceFromPreInvoice,
-  openPreInvoice,
-} from "../../services/preInvoicesAPI";
+import { openPreInvoice } from "../../services/preInvoicesAPI";
 import {
   useState,
-  type ChangeEvent,
   type Dispatch,
   type FormEvent,
   type SetStateAction,
 } from "react";
+import { removeUserFromClass } from "../../services/classAPI";
 
 function ClassCard({
   classData,
@@ -57,23 +58,13 @@ function ClassCard({
         {new Date(dates[0]).toLocaleDateString("sl-SI", { weekday: "long" })},{" "}
         {`${hours[0]}-${hours[1]}`}
       </p>
-      {data &&
-      data.preInvoices.filter((preInvoice) => preInvoice.classes[0] === _id)
-        .length > 0 ? (
-        <button
-          className="from-primary to-secondary drop-shadow-btn hover:to-primary flex cursor-pointer items-center gap-4 self-end rounded-lg bg-gradient-to-r px-4 py-1 font-semibold transition-colors duration-300"
-          onClick={() => setIsOpenConfirm(true)}
-        >
-          Poravnaj
-        </button>
-      ) : (
-        <Link
-          to={`/dashboard/classes/${_id}`}
-          className="from-primary to-secondary drop-shadow-btn hover:to-primary flex cursor-pointer items-center gap-4 self-end rounded-lg bg-gradient-to-r px-4 py-1 font-semibold transition-colors duration-300"
-        >
-          Prisotnost <ChevronRightIcon className="h-4 stroke-3" />
-        </Link>
-      )}
+
+      <Link
+        to={`/dashboard/classes/${_id}`}
+        className="from-primary to-secondary drop-shadow-btn hover:to-primary flex cursor-pointer items-center gap-4 self-end rounded-lg bg-gradient-to-r px-4 py-1 font-semibold transition-colors duration-300"
+      >
+        Prisotnost <ChevronRightIcon className="h-4 stroke-3" />
+      </Link>
       {data &&
         data.preInvoices.filter((preInvoice) => preInvoice.classes[0] === _id)
           .length > 0 && (
@@ -85,20 +76,20 @@ function ClassCard({
           </p>
         )}
       {isOpenConfirm && (
-        <ConfirmUseTicket
-          id={
-            data?.preInvoices.filter(
-              (preInvoice) => preInvoice.classes[0] === _id,
-            )[0]._id
-          }
+        <ConfirmRemoveUser
+          id={classData._id}
           setIsOpenConfirm={setIsOpenConfirm}
         />
       )}
+      <TrashIcon
+        className="absolute top-2 right-2 h-6 cursor-pointer stroke-2"
+        onClick={() => setIsOpenConfirm(true)}
+      />
     </div>
   );
 }
 
-function ConfirmUseTicket({
+function ConfirmRemoveUser({
   setIsOpenConfirm,
   id,
 }: {
@@ -108,7 +99,6 @@ function ConfirmUseTicket({
   const queryClient = useQueryClient();
   const { id: userId } = useParams();
   const [isLoading, setIsLoading] = useState(false);
-  const [checked, setChecked] = useState("");
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -116,10 +106,11 @@ function ConfirmUseTicket({
       setIsLoading(true);
 
       if (id) {
-        await createInvoiceFromPreInvoice({ id });
+        await removeUserFromClass({ id, bodyData: { student: userId } });
       }
 
-      queryClient.invalidateQueries({ queryKey: ["preInvoices", userId] });
+      queryClient.invalidateQueries({ queryKey: ["userClasses", userId] });
+      queryClient.invalidateQueries({ queryKey: ["userActivities", userId] });
       setIsOpenConfirm(false);
     } catch (error) {
       console.log(error);
@@ -128,46 +119,12 @@ function ConfirmUseTicket({
     }
   }
 
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    setChecked(e.target.value);
-  }
-
   return (
     <div className="bg-neutral/95 border-gray/80 absolute top-0 left-0 z-50 flex w-full flex-col gap-15 rounded-xl border px-6 pt-16 pb-5.5">
-      <p className="font-medium">Predračun želim poravnati:</p>
+      <p className="font-medium">
+        Ste prepričani da želite odstraniti uporabnika iz skupine?
+      </p>
       <form className="flex flex-col gap-8" onSubmit={handleSubmit}>
-        <div className="flex items-center justify-around">
-          <label className="flex cursor-pointer items-center gap-4">
-            <input
-              type="checkbox"
-              className="peer hidden"
-              checked={checked === "card"}
-              value="card"
-              onChange={handleChange}
-            />
-            <div className="border-gray flex h-6 w-6 items-center justify-center rounded-lg border transition-all duration-75">
-              <span
-                className={`${checked === "card" ? "bg-primary border-gray border" : ""} h-4 w-4 rounded-full`}
-              />
-            </div>
-            <p className="font-medium">s kartico</p>
-          </label>{" "}
-          <label className="flex cursor-pointer items-center gap-4">
-            <input
-              type="checkbox"
-              className="peer hidden"
-              checked={checked === "gotovina"}
-              value="gotovina"
-              onChange={handleChange}
-            />
-            <div className="border-gray flex h-6 w-6 items-center justify-center rounded-lg border transition-all duration-75">
-              <span
-                className={`${checked === "gotovina" ? "bg-primary border-gray border" : ""} h-4 w-4 rounded-full`}
-              />
-            </div>
-            <p className="font-medium">z gotovino</p>
-          </label>
-        </div>
         <div className="flex items-center justify-between">
           <button
             onClick={(e) => {
@@ -182,7 +139,7 @@ function ConfirmUseTicket({
             className="from-primary to-secondary drop-shadow-btn hover:to-primary flex cursor-pointer items-center gap-4 rounded-lg bg-gradient-to-r px-4 py-3 font-semibold transition-colors duration-300 disabled:cursor-not-allowed disabled:from-gray-400 disabled:to-gray-400"
             disabled={isLoading}
           >
-            Poravnaj znesek <ChevronRightIcon className="h-4 stroke-3" />
+            Odstrani <ChevronRightIcon className="h-4 stroke-3" />
           </button>
         </div>
       </form>
