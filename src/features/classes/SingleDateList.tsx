@@ -31,9 +31,7 @@ function SingleDateList({
         <p className="text-xl font-semibold">Prihajajoče dogajanje</p>
         <div className="mt-6 flex flex-col gap-2">
           {classes.map((el, i) => {
-            if (
-              new Date(el.dates[0]).toTimeString() > new Date().toTimeString()
-            ) {
+            if (new Date(el.dates[0]) > new Date()) {
               return <ClassListCard key={el._id} classData={el} i={i} />;
             }
           })}
@@ -43,9 +41,7 @@ function SingleDateList({
         <p className="text-xl font-semibold">Preteklo dogajanje</p>
         <div className="mt-6 flex flex-col gap-2">
           {classes.map((el, i) => {
-            if (
-              new Date(el.dates[0]).toTimeString() < new Date().toTimeString()
-            ) {
+            if (new Date(el.dates[0]) < new Date()) {
               return <ClassListCard key={el._id} classData={el} i={i} />;
             }
           })}

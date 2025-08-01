@@ -1,9 +1,11 @@
 import { ChevronDownIcon } from "@heroicons/react/24/outline";
 import { useQueries } from "@tanstack/react-query";
-import type { Dispatch } from "react";
+import type { Dispatch, FormEvent } from "react";
 import { useReducer, useState } from "react";
 import { getAllUsers } from "../../services/userAPI";
 import { getArticles } from "../../services/articlesAPI";
+import { createClass } from "../../services/classAPI";
+import { useNavigate } from "react-router";
 
 interface IInitialState {
   category: string;
@@ -11,12 +13,14 @@ interface IInitialState {
   ageGroup: string[];
   coach: string;
   coachName: string;
-  articles: { id: string; name: string }[];
+  article: { id: string; name: string }[];
   maxStudents: string;
   hiddenUsers: boolean;
   hiddenReception: boolean;
-  time: string[];
+  time: number[];
   dates: string[];
+  dateRange: { start?: string; end?: string; weekday: number };
+  isLoading: boolean;
 }
 
 type Action =
@@ -26,12 +30,20 @@ type Action =
   | { type: "ageGroup"; payload: string }
   | { type: "coach"; payload: string }
   | { type: "coachName"; payload: string }
-  | { type: "articles"; payload: { id: string; name: string } }
+  | { type: "article"; payload: { id: string; name: string } }
   | { type: "maxStudents"; payload: string }
   | { type: "hiddenUsers"; payload: boolean }
   | { type: "hiddenReception"; payload: boolean }
   | { type: "time"; payload: { start?: string; end?: string } }
-  | { type: "dates"; payload: string };
+  | { type: "dates"; payload: string }
+  | {
+      type: "multipleDates";
+      payload: { start?: string; end?: string; weekday?: number };
+    }
+  | {
+      type: "loading";
+      payload: boolean;
+    };
 
 const ageGroups = [
   { name: "Odrasli", ageGroup: "adult" },
@@ -46,18 +58,25 @@ const initialState: IInitialState = {
   ageGroup: [],
   coach: "",
   coachName: "",
-  articles: [],
+  article: [],
   maxStudents: "",
   hiddenUsers: true,
   hiddenReception: true,
-  time: ["", ""],
+  time: [0, 0],
   dates: [],
+  dateRange: { weekday: 0 },
+  isLoading: false,
 };
 
 function reducer(state: IInitialState, action: Action): IInitialState {
   switch (action.type) {
     case "category": {
-      return { ...state, category: action.payload };
+      return {
+        ...state,
+        category: action.payload,
+        dates: [],
+        dateRange: initialState.dateRange,
+      };
     }
     case "className.sl": {
       return {
@@ -95,14 +114,14 @@ function reducer(state: IInitialState, action: Action): IInitialState {
         return { ...state, coachName: "" };
       }
     }
-    case "articles": {
-      if (state.articles.find((el) => el.id === action.payload.id)) {
+    case "article": {
+      if (state.article.find((el) => el.id === action.payload.id)) {
         return {
           ...state,
-          articles: state.articles.filter((el) => el.id !== action.payload.id),
+          article: state.article.filter((el) => el.id !== action.payload.id),
         };
       } else {
-        return { ...state, articles: [...state.articles, action.payload] };
+        return { ...state, article: [...state.article, action.payload] };
       }
     }
     case "maxStudents": {
@@ -113,24 +132,127 @@ function reducer(state: IInitialState, action: Action): IInitialState {
     case "hiddenReception":
       return { ...state, hiddenReception: action.payload };
     case "time": {
+      function timeToDecimal(time: string): number {
+        const [hours, minutes] = time.split(":").map(Number);
+        return hours + minutes / 60;
+      }
       if (action.payload.start) {
-        return { ...state, time: state.time.fill(action.payload.start, 0) };
+        return {
+          ...state,
+          time: state.time.fill(
+            timeToDecimal(action.payload.start),
+
+            0,
+            1,
+          ),
+        };
       }
       if (action.payload.end) {
-        return { ...state, time: state.time.fill(action.payload.end, 1) };
+        return {
+          ...state,
+          time: state.time.fill(timeToDecimal(action.payload.end), 1),
+        };
       }
       return state;
     }
     case "dates": {
       return { ...state, dates: [action.payload] };
     }
+    case "multipleDates": {
+      const { start, end, weekday } = action.payload;
+
+      // Posodobi samo tisti del, ki je poslan
+      const newStart = start ?? state.dateRange?.start;
+      const newEnd = end ?? state.dateRange?.end;
+      const newWeekDay = weekday ?? state.dateRange?.weekday;
+
+      // Shrani začasno stanje v dateRange
+      const updatedState = {
+        ...state,
+        dateRange: {
+          start: newStart,
+          end: newEnd,
+          weekday: newWeekDay,
+        },
+      };
+
+      if (!newStart || !newEnd) return updatedState;
+
+      const startDate = new Date(newStart);
+      const endDate = new Date(newEnd);
+      const result: string[] = [];
+
+      const targetDay = (updatedState.dateRange.weekday + 1) % 7;
+      const current = new Date(startDate);
+
+      while (current <= endDate) {
+        if (current.getDay() === targetDay) {
+          result.push(current.toISOString().split("T")[0]);
+        }
+
+        current.setDate(current.getDate() + 1);
+      }
+
+      if (endDate.getDay() === targetDay) {
+        result.push(endDate.toISOString().split("T")[0]);
+      }
+
+      return {
+        ...updatedState,
+        dates: result,
+      };
+    }
+    case "loading": {
+      return { ...state, isLoading: action.payload };
+    }
   }
 }
 
 function CreateClassForm() {
+  const navigate = useNavigate();
+
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const { category } = state;
+  const { category, isLoading } = state;
+
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    try {
+      dispatch({ type: "loading", payload: true });
+
+      const {
+        className,
+        coach,
+        maxStudents,
+        dates,
+        ageGroup,
+        article,
+        hiddenReception,
+        hiddenUsers,
+        time,
+      } = state;
+
+      const data = await createClass({
+        className,
+        teacher: coach,
+        maxStudents,
+        dates,
+        ageGroup,
+        article: article.map((a) => a.id),
+        hiddenReception,
+        hiddenUsers,
+        time,
+      });
+
+      if (!(data instanceof Error)) {
+        navigate("/dashboard/classes");
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      dispatch({ type: "loading", payload: false });
+    }
+  }
 
   return (
     <>
@@ -155,12 +277,18 @@ function CreateClassForm() {
           </button>
         </div>
       </div>
-      <form className="grid grid-cols-2 gap-x-5">
+      <form className="grid grid-cols-2 gap-x-5" onSubmit={handleSubmit}>
         <BasicInfo state={state} dispatch={dispatch} />
         <div className="flex flex-col gap-6">
           <Visibility state={state} dispatch={dispatch} />
           <Dates state={state} dispatch={dispatch} />
         </div>
+        <button
+          className="from-primary to-secondary drop-shadow-btn hover:to-primary col-span-2 mt-10 cursor-pointer justify-self-end rounded-lg bg-gradient-to-r px-6 py-1.5 font-semibold transition-colors duration-300 disabled:cursor-not-allowed disabled:from-gray-400 disabled:to-gray-400"
+          disabled={isLoading}
+        >
+          {isLoading ? "..." : "Ustvari skupino"}
+        </button>
       </form>
     </>
   );
@@ -173,7 +301,7 @@ function BasicInfo({
   state: IInitialState;
   dispatch: Dispatch<Action>;
 }) {
-  const { ageGroup, coachName, coach, category, articles } = state;
+  const { ageGroup, coachName, coach, category, article } = state;
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenCoaches, setIsOpenCoaches] = useState(false);
   const [isOpenArticles, setIsOpenArticles] = useState(false);
@@ -276,6 +404,7 @@ function BasicInfo({
                               type: "coachName",
                               payload: user.fullName,
                             });
+                            setIsOpenCoaches(false);
                           }}
                         ></span>
                         {user.fullName}
@@ -294,7 +423,7 @@ function BasicInfo({
               className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 shadow-xs"
               placeholder="Izberi artikle"
               disabled
-              value={articles.map((a) => a.name).join(", ")}
+              value={article.map((a) => a.name).join(", ")}
             />
             <ChevronDownIcon
               className={`absolute right-4 bottom-3 w-5 cursor-pointer stroke-2 ${isOpenArticles ? "rotate-180" : ""}`}
@@ -306,24 +435,24 @@ function BasicInfo({
                   <p>...</p>
                 ) : (
                   articlesData.articles.map(
-                    (article: { _id: string; name: { sl: string } }) => (
+                    (articleItem: { _id: string; name: { sl: string } }) => (
                       <div
-                        key={article._id}
+                        key={articleItem._id}
                         className="flex items-center gap-2"
                       >
                         <span
-                          className={`h-6 w-6 cursor-pointer rounded-lg border border-black/50 ${articles.find((a) => a.id === article._id) ? "bg-primary/50" : ""}`}
+                          className={`h-6 w-6 cursor-pointer rounded-lg border border-black/50 ${article.find((a) => a.id === articleItem._id) ? "bg-primary/50" : ""}`}
                           onClick={() =>
                             dispatch({
-                              type: "articles",
+                              type: "article",
                               payload: {
-                                id: article._id,
-                                name: article.name.sl,
+                                id: articleItem._id,
+                                name: articleItem.name.sl,
                               },
                             })
                           }
                         ></span>
-                        {article.name.sl}
+                        {articleItem.name.sl}
                       </div>
                     ),
                   )
@@ -419,25 +548,125 @@ function Dates({
   state: IInitialState;
   dispatch: Dispatch<Action>;
 }) {
-  console.log(state);
+  const weekDays = [
+    "Ponedeljek",
+    "Torek",
+    "Sreda",
+    "Četrtek",
+    "Petek",
+    "Sobota",
+    "Nedelja",
+  ];
+
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div>
       <p>Termin izvedbe</p>
-      <div className="flex items-center justify-between rounded-xl bg-white p-8">
-        <div className="grid grid-cols-2 gap-x-5">
-          <div className="flex flex-col gap-1">
-            <p className="text-sm font-medium">Max št. učencev</p>
-            <input
-              type="number"
-              className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 shadow-xs outline-none"
-              placeholder="Vnesi št. učencev"
-              onChange={(e) =>
-                dispatch({ type: "maxStudents", payload: e.target.value })
-              }
-            />
+      <div className="flex flex-col gap-10 rounded-xl bg-white p-8">
+        <div className="flex items-center">
+          <div className="grid grid-cols-2 gap-x-5">
+            <div className="flex flex-col gap-1">
+              <p className="text-sm font-medium">Ura začetka</p>
+              <input
+                type="time"
+                className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 shadow-xs outline-none"
+                onChange={(e) =>
+                  dispatch({ type: "time", payload: { start: e.target.value } })
+                }
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-x-5">
+            <div className="flex flex-col gap-1">
+              <p className="text-sm font-medium">Ura zaključka</p>
+              <input
+                type="time"
+                className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 shadow-xs outline-none"
+                onChange={(e) =>
+                  dispatch({ type: "time", payload: { end: e.target.value } })
+                }
+              />
+            </div>
           </div>
         </div>
+        <div className="grid grid-cols-2 gap-x-5">
+          <div className="flex flex-col gap-1">
+            <p className="text-sm font-medium">
+              Datum{state.category === "VV" ? " začetka" : " izvedbe"}
+            </p>
+            {state.category === "VV" && (
+              <input
+                type="date"
+                className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 shadow-xs outline-none"
+                onChange={(e) =>
+                  dispatch({
+                    type: "multipleDates",
+                    payload: { start: e.target.value },
+                  })
+                }
+              />
+            )}
+            {state.category === "A" && (
+              <input
+                type="date"
+                className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 shadow-xs outline-none"
+                onChange={(e) =>
+                  dispatch({ type: "dates", payload: e.target.value })
+                }
+              />
+            )}
+          </div>
+          {state.category === "VV" && (
+            <div className="flex flex-col gap-1">
+              <p className="text-sm font-medium">Datum zaključka</p>
+              <input
+                type="date"
+                className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 shadow-xs outline-none"
+                onChange={(e) =>
+                  dispatch({
+                    type: "multipleDates",
+                    payload: { end: e.target.value },
+                  })
+                }
+              />
+            </div>
+          )}
+        </div>
+        {state.category === "VV" && (
+          <div className="relative flex flex-col gap-1">
+            <p className="text-sm font-medium">Dan v tednu</p>
+            <input
+              className="w-full rounded-lg border border-gray-300 px-3.5 py-2.5 shadow-xs outline-none"
+              placeholder="Izberi dan v tednu"
+              disabled
+              value={weekDays[state.dateRange.weekday]}
+            />
+            <ChevronDownIcon
+              className={`absolute right-4 bottom-3 w-5 cursor-pointer stroke-2 ${isOpen ? "rotate-180" : ""}`}
+              onClick={() => setIsOpen((isOpen) => !isOpen)}
+            />
+            {isOpen && (
+              <div className="absolute top-[110%] left-0 z-50 flex w-full flex-col gap-2 rounded-lg border border-black/20 bg-white px-4 py-2 shadow-xs">
+                {weekDays.map((day, i) => (
+                  <div key={day} className="flex items-center gap-2">
+                    <span
+                      className={`h-6 w-6 cursor-pointer rounded-lg border border-black/50 ${i === state.dateRange.weekday ? "bg-primary/50" : ""}`}
+                      onClick={() => {
+                        dispatch({
+                          type: "multipleDates",
+                          payload: { weekday: i },
+                        });
+                        setIsOpen(false);
+                      }}
+                    ></span>
+                    {day}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -520,7 +520,7 @@ function ClassDuration({ dispatch }: { dispatch: Dispatch<Action> }) {
       <p>Darilni bon</p>
       <div className="flex items-center justify-between rounded-xl bg-white p-8">
         <div className="flex flex-col gap-1">
-          <p className="text-sm font-medium">Cena z DDV(€)</p>
+          <p className="text-sm font-medium">Datum začetka</p>
           <input
             type="date"
             className="w-44 rounded-lg border border-gray-300 px-3.5 py-2.5 shadow-xs outline-none"
@@ -531,7 +531,7 @@ function ClassDuration({ dispatch }: { dispatch: Dispatch<Action> }) {
           />
         </div>
         <div className="flex flex-col gap-1">
-          <p className="text-sm font-medium">Cena z DDV(€)</p>
+          <p className="text-sm font-medium">Datum zaključka</p>
           <input
             type="date"
             className="w-44 rounded-lg border border-gray-300 px-3.5 py-2.5 shadow-xs outline-none"

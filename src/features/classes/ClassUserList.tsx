@@ -32,7 +32,14 @@ function ClassUserList({
   const sliceStudents = useAppSelector(getStudents);
   const dispatch = useAppDispatch();
   const { dates, students } = classData;
-  const thisMonth = new Date().toLocaleDateString("sl-SI", { month: "long" });
+  const thisMonth =
+    new Date().getMonth() >= new Date(classData.dates[0]).getMonth() &&
+    new Date().getMonth() <=
+      new Date(classData.dates[classData.dates.length - 1]).getMonth()
+      ? new Date().toLocaleDateString("sl-SI", { month: "long" })
+      : new Date(classData.dates[0]).toLocaleDateString("sl-SI", {
+          month: "long",
+        });
   const [month, setMonth] = useState(thisMonth);
   const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState("");
