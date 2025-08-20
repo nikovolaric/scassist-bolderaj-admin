@@ -5,6 +5,10 @@ import {
   removeDate,
   setStudent,
 } from "./slices/checkAttendanceSlice";
+import { ArrowPathIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { useParams } from "react-router";
+import { removeUserFromClass } from "../../services/classAPI";
+import { useQueryClient } from "@tanstack/react-query";
 
 function ClassUserListCard({
   studentData,
@@ -20,25 +24,55 @@ function ClassUserListCard({
   dates: string[];
   month: string;
 }) {
+  const { classId } = useParams();
+  const queryClient = useQueryClient();
   const { student, attendance } = studentData;
   const monthDates = dates.filter(
     (date) =>
       new Date(date).toLocaleDateString("sl-SI", { month: "long" }) === month,
   );
 
+  const [isLoading, setIsLoading] = useState(false);
+
+  async function handleClick() {
+    try {
+      setIsLoading(true);
+
+      if (classId) {
+        await removeUserFromClass({
+          id: classId,
+          bodyData: { student: studentData.student._id },
+        });
+
+        queryClient.invalidateQueries({ queryKey: ["class", classId] });
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   return (
     <div
       className={`border-gray/75 grid items-center justify-items-center border-b px-3 py-4 ${i % 2 === 0 ? "bg-primary/10" : ""} ${dates.length > 1 ? "grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr]" : "grid-cols-2"}`}
     >
-      <div className="justify-self-start">
-        <p className="font-medium">{student.fullName}</p>
-        <p className="text-black/50">
-          {new Date(student.birthDate).toLocaleDateString("sl-SI", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-          })}
-        </p>
+      <div className="flex items-center gap-6 justify-self-start">
+        {isLoading ? (
+          <ArrowPathIcon className="h-6 animate-spin" />
+        ) : (
+          <TrashIcon className="h-6 cursor-pointer" onClick={handleClick} />
+        )}
+        <div>
+          <p className="font-medium">{student.fullName}</p>
+          <p className="text-black/50">
+            {new Date(student.birthDate).toLocaleDateString("sl-SI", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            })}
+          </p>
+        </div>
       </div>
       {monthDates.map((date) => (
         <CheckBox

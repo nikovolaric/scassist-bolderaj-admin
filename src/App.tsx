@@ -28,6 +28,7 @@ import CreatePreInvoice from "./pages/CreatePreInvoice";
 import Classes from "./pages/Classes";
 import OneClass from "./pages/OneClass";
 import CreateClass from "./pages/CreateClass";
+import AddUserToClass from "./pages/AddUserToClass";
 
 const router = createBrowserRouter([
   {
@@ -136,6 +137,10 @@ const router = createBrowserRouter([
           {
             path: "classes/:classId",
             Component: OneClass,
+          },
+          {
+            path: "classes/:classId/pickuser",
+            Component: AddUserToClass,
           },
           {
             path: "classes/create",

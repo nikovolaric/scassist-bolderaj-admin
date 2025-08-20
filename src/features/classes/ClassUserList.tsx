@@ -3,6 +3,7 @@ import {
   ArrowRightIcon,
   ChevronDownIcon,
   MagnifyingGlassIcon,
+  PlusCircleIcon,
 } from "@heroicons/react/24/outline";
 import { useState, type Dispatch, type SetStateAction } from "react";
 import ClassUserListCard from "./ClassUserListCard";
@@ -10,6 +11,7 @@ import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { clearStudentData, getStudents } from "./slices/checkAttendanceSlice";
 import { checkAttendance } from "../../services/classAPI";
 import { useParams } from "react-router";
+import LinkBtn from "../../components/LinkBtn";
 
 function ClassUserList({
   classData,
@@ -58,9 +60,16 @@ function ClassUserList({
 
   return (
     <div className={`flex flex-col gap-2 ${dates.length === 1 ? "w-1/2" : ""}`}>
-      <p className="text-sm font-medium text-black/75">
-        Seznam prijavljenih uporabnikov
-      </p>
+      <div className="flex items-center justify-between">
+        <p className="text-sm font-medium text-black/75">
+          Seznam prijavljenih uporabnikov
+        </p>
+        <LinkBtn type="primary" to={`/dashboard/classes/${classId}/pickuser`}>
+          <p className="flex items-center gap-4">
+            <PlusCircleIcon className="h-6" /> Dodaj uporabnika
+          </p>
+        </LinkBtn>
+      </div>
       <div className="drop-shadow-input flex flex-col gap-6 rounded-lg bg-white px-6 py-5">
         <Filters
           month={month}

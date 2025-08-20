@@ -5,20 +5,20 @@ import {
 } from "@heroicons/react/24/outline";
 import { useQueries } from "@tanstack/react-query";
 import { useState } from "react";
-import { getAllUsers } from "../../../services/userAPI";
-import Spinner from "../../../components/Spinner";
+import { getAllUsers } from "../../../../services/userAPI";
+import Spinner from "../../../../components/Spinner";
 import UserListCard from "./UserListCard";
 import { useParams } from "react-router";
-import { getOneCompany } from "../../../services/companiesAPI";
+import { getOneClass } from "../../../../services/classAPI";
 
 function UserList() {
-  const { id } = useParams();
+  const { classId } = useParams();
   const [lastName, setLastName] = useState("");
   const [page, setPage] = useState(1);
 
   const [
     { data: userData, isPending: userPending },
-    { data: companyData, isPending: companyPending },
+    { data: classData, isPending: classPending },
   ] = useQueries({
     queries: [
       {
@@ -26,9 +26,9 @@ function UserList() {
         queryFn: () => getAllUsers({ page, lastName }),
       },
       {
-        queryKey: ["company", id],
-        queryFn: () => getOneCompany(id!),
-        enabled: !!id,
+        queryKey: ["class", classId],
+        queryFn: () => getOneClass(classId!),
+        enabled: !!classId,
       },
     ],
   });
@@ -36,8 +36,7 @@ function UserList() {
   return (
     <div className="flex flex-col gap-10">
       <p className="text-3xl font-semibold">
-        Izberi uporabnike:{" "}
-        {companyPending ? "..." : companyData.data.companyName}
+        Izberi uporabnike: {classPending ? "..." : classData.class.className.sl}
       </p>
       <div className="flex flex-col gap-5 rounded-xl bg-white p-8">
         <div className="relative grid grid-cols-[3fr_1fr] gap-x-5">
@@ -52,7 +51,7 @@ function UserList() {
         </div>
         <div>
           <NameBar />
-          {userPending || companyPending ? (
+          {userPending || classPending ? (
             <Spinner />
           ) : (
             <>
@@ -70,7 +69,13 @@ function UserList() {
                     key={user._id}
                     user={user}
                     i={i}
-                    companyUsers={companyData.data.users}
+                    classUsers={classData.class.students.map(
+                      (el: {
+                        student: {
+                          _id: string;
+                        };
+                      }) => el.student,
+                    )}
                   />
                 ),
               )}

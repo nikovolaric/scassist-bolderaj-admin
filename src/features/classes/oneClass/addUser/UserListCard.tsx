@@ -2,12 +2,12 @@ import { UserCircleIcon } from "@heroicons/react/24/outline";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useParams } from "react-router";
-import { addUser } from "../../../services/companiesAPI";
+import { addUserToClass } from "../../../../services/classAPI";
 
 function UserListCard({
   user,
   i,
-  companyUsers,
+  classUsers,
 }: {
   user: {
     fullName: string;
@@ -16,10 +16,10 @@ function UserListCard({
     _id: string;
   };
   i: number;
-  companyUsers: { _id: string }[];
+  classUsers: { _id: string }[];
 }) {
   const queryClient = useQueryClient();
-  const { id } = useParams();
+  const { classId } = useParams();
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -27,10 +27,10 @@ function UserListCard({
     try {
       setIsLoading(true);
 
-      if (id) {
-        await addUser(id, user._id);
+      if (classId) {
+        await addUserToClass({ id: classId, bodyData: { student: user._id } });
 
-        queryClient.invalidateQueries({ queryKey: ["company", id] });
+        queryClient.invalidateQueries({ queryKey: ["class", classId] });
       }
     } catch (error) {
       console.error(error);
@@ -57,14 +57,14 @@ function UserListCard({
         </div>
       </div>
       <p className="text-black/50">{user.email}</p>
-      {companyUsers.find((companyUser) => companyUser._id === user._id) ? (
-        <p className="font-semibold">Uporabnik je dodan v podjetje.</p>
+      {classUsers.find((classUser) => classUser._id === user._id) ? (
+        <p className="font-semibold">Uporabnik je dodan v skupino.</p>
       ) : (
         <button
           className="from-primary to-secondary drop-shadow-btn hover:to-primary cursor-pointer rounded-lg bg-gradient-to-r px-10 py-2 font-semibold transition-colors duration-300"
           onClick={handleClick}
         >
-          {isLoading ? "..." : "Dodaj uporabnika v podjetje."}
+          {isLoading ? "..." : "Dodaj uporabnika v v skupino."}
         </button>
       )}
     </div>
