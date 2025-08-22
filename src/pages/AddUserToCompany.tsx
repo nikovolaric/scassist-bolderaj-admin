@@ -1,5 +1,5 @@
 import Header from "../components/Header";
-import UserList from "../features/classes/oneClass/addUser/UserList";
+import UserList from "../features/company/addUser/UserList";
 
 function AddUserToCompany() {
   return (
