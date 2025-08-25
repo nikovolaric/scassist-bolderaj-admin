@@ -44,6 +44,7 @@ interface IInitialState {
     taxNumber: string;
     email?: string;
   };
+  send: boolean;
 }
 
 type Action =
@@ -84,6 +85,7 @@ type Action =
       };
     }
   | { type: "company.mail"; payload: string }
+  | { type: "send"; payload: boolean }
   | { type: "reset" };
 
 const initialState: IInitialState = {
@@ -91,6 +93,7 @@ const initialState: IInitialState = {
   preInvoiceDate: "",
   paymentDueDate: "",
   articles: [],
+  send: false,
 };
 
 function reducer(state: IInitialState, action: Action): IInitialState {
@@ -169,6 +172,9 @@ function reducer(state: IInitialState, action: Action): IInitialState {
         } as NonNullable<IInitialState["company"]>,
       };
     }
+    case "send": {
+      return { ...state, send: action.payload };
+    }
     case "reset": {
       return initialState;
     }
@@ -190,7 +196,7 @@ function CreatePreInvoiceForm() {
     }
   }, []);
 
-  const { buyer, recepient, paymentDueDate, articles, company } = state;
+  const { buyer, recepient, paymentDueDate, articles, company, send } = state;
 
   async function handleCreatePreInvoice() {
     try {
@@ -204,6 +210,7 @@ function CreatePreInvoiceForm() {
         dueDate: paymentDueDate,
         articles,
         company,
+        send,
       });
 
       if (data instanceof Error) {
@@ -814,7 +821,7 @@ function EndPart({
             disabled={state.category === "person" ? !!state.buyer : false}
             defaultValue={
               state.category === "person"
-                ? data?.data.email || ""
+                ? (data?.data.email ?? data?.data.parent.email)
                 : state.company?.email
             }
             onChange={(e) => {
@@ -825,6 +832,9 @@ function EndPart({
               }
             }}
           />
+          <p className="mt-2 flex items-center gap-2">
+            <CheckBox dispatch={dispatch} state={state} /> Pošlji na predračun
+          </p>
         </div>
       </div>{" "}
       <div />
@@ -843,6 +853,38 @@ function EndPart({
         </div>
       </div>
     </div>
+  );
+}
+
+function CheckBox({
+  state,
+  dispatch,
+}: {
+  state: IInitialState;
+  dispatch: Dispatch<Action>;
+}) {
+  function handleChange() {
+    if (state.send) {
+      dispatch({ type: "send", payload: false });
+    } else {
+      dispatch({ type: "send", payload: true });
+    }
+  }
+
+  return (
+    <label className="cursor-pointer">
+      <input
+        type="checkbox"
+        className="peer hidden"
+        checked={state.send}
+        onChange={handleChange}
+      />
+      <div className="border-gray flex h-6 w-6 items-center justify-center rounded-lg border transition-all duration-75">
+        <span
+          className={`${state.send ? "bg-primary border-gray border" : ""} h-4 w-4 rounded-full`}
+        />
+      </div>
+    </label>
   );
 }
 
