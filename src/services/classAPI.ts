@@ -278,3 +278,41 @@ export async function addUserToClass({
     return error as Error;
   }
 }
+
+export async function removeDateFromClass({
+  id,
+  date,
+  dates,
+}: {
+  id: string;
+  date: string;
+  dates: string[];
+}) {
+  try {
+    const newDates = dates.filter((el) => el !== date);
+
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/classes/${id}`, {
+      method: "PATCH",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        accept: "application/json",
+      },
+      body: JSON.stringify({ dates: newDates }),
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      if (data.status === "error") {
+        throw new Error(
+          "Nekaj je šlo narobe na strežniku! Poiskusite kasneje!",
+        );
+      }
+      throw Error(data.message);
+    }
+
+    return data;
+  } catch (error) {
+    return error as Error;
+  }
+}
