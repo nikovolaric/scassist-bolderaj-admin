@@ -833,7 +833,8 @@ function EndPart({
             }}
           />
           <p className="mt-2 flex items-center gap-2">
-            <CheckBox dispatch={dispatch} state={state} /> Pošlji na predračun
+            <CheckBox dispatch={dispatch} state={state} /> Pošlji na elektronski
+            naslov
           </p>
         </div>
       </div>{" "}
