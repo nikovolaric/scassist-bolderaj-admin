@@ -19,11 +19,11 @@ function MultipleDateList({
       <div>
         <p className="text-xl font-semibold">Danes, {today}</p>
         <div className="mt-6 flex flex-col gap-2">
-          {classes
-            .sort((a, b) => a.time[0] - b.time[0])
+          {[...classes]
             .filter(
               (el) => new Date(el.dates[el.dates.length - 1]) >= new Date(),
             )
+            .sort((a, b) => a.time[0] - b.time[0])
             .map((el, i) => {
               if (
                 new Date(el.dates[0]).toLocaleDateString("sl-SI", {
@@ -66,11 +66,11 @@ function ClassDatesList({
       <div>
         <p className="text-xl font-semibold capitalize">{day}</p>
         <div className="mt-6 flex flex-col gap-2">
-          {classes
-            .sort((a, b) => a.time[0] - b.time[0])
+          {[...classes]
             .filter(
               (el) => new Date(el.dates[el.dates.length - 1]) >= new Date(),
             )
+            .sort((a, b) => a.time[0] - b.time[0])
             .map((el, i) => {
               if (
                 new Date(el.dates[0]).toLocaleDateString("sl-SI", {
