@@ -13,10 +13,16 @@ import {
 import Spinner from "../../components/Spinner";
 import MultipleDateList from "./MultipleDateList";
 import SingleDateList from "./SingleDateList";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import {
+  getClassNavigation,
+  setAgeGroup,
+  setSelected,
+} from "./slices/classNavigationSlice";
 
 function SearchClasses() {
-  const [selected, setSelected] = useState("vodene");
-  const [ageGroup, setAgeGroup] = useState("adult");
+  const { selected, ageGroup } = useAppSelector(getClassNavigation);
+
   const [className, setClassName] = useState("");
 
   const [
@@ -49,12 +55,8 @@ function SearchClasses() {
         </LinkBtn>
       </div>
       <div className="flex flex-col gap-16">
-        <Select
-          selected={selected}
-          setSelected={setSelected}
-          setClassName={setClassName}
-        />
-        <AgeGroup ageGroup={ageGroup} setAgeGroup={setAgeGroup} />
+        <Select selected={selected} setClassName={setClassName} />
+        <AgeGroup ageGroup={ageGroup} />
         {selected === "vodene" && (
           <>
             {isLoadingMultiple ? (
@@ -80,24 +82,24 @@ function SearchClasses() {
 
 function Select({
   selected,
-  setSelected,
   setClassName,
 }: {
   selected: string;
-  setSelected: Dispatch<SetStateAction<string>>;
   setClassName: Dispatch<SetStateAction<string>>;
 }) {
+  const dispatch = useAppDispatch();
+
   return (
     <div className="grid grid-cols-[1fr_1fr_4fr] gap-5">
       <button
         className={`drop-shadow-input h-11 cursor-pointer rounded-lg bg-white px-4 font-semibold ${selected === "vodene" ? "border-secondary border-2 shadow-[inset_1px_2px_4px_rgba(0,0,0,0.25)]" : ""}`}
-        onClick={() => setSelected("vodene")}
+        onClick={() => dispatch(setSelected("vodene"))}
       >
         Vodene vadbe
       </button>
       <button
         className={`drop-shadow-input h-11 cursor-pointer rounded-lg bg-white px-4 font-semibold ${selected === "aktivnosti" ? "border-secondary border-2 shadow-[inset_1px_2px_4px_rgba(0,0,0,0.25)]" : ""}`}
-        onClick={() => setSelected("aktivnosti")}
+        onClick={() => dispatch(setSelected("aktivnosti"))}
       >
         Aktivnosti
       </button>
@@ -115,17 +117,12 @@ function Select({
   );
 }
 
-function AgeGroup({
-  ageGroup,
-  setAgeGroup,
-}: {
-  ageGroup: string;
-  setAgeGroup: Dispatch<SetStateAction<string>>;
-}) {
+function AgeGroup({ ageGroup }: { ageGroup: string }) {
   const [isOpen, setIsOpen] = useState(false);
+  const dispatch = useAppDispatch();
 
   function handleClick(ageGroup: string) {
-    setAgeGroup(ageGroup);
+    dispatch(setAgeGroup(ageGroup));
 
     setIsOpen(false);
   }
