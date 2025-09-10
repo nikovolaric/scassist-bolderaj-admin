@@ -2,12 +2,14 @@ import { configureStore } from "@reduxjs/toolkit";
 import cashRegisterReducer from "../features/cashRegister/slice/cashRegisterSlice";
 import checkAttendanceReducer from "../features/classes/slices/checkAttendanceSlice";
 import classNavigationReducer from "../features/classes/slices/classNavigationSlice";
+import articleNavigationReducer from "../features/articles/slices/articleNavigatonSlice";
 
 export const store = configureStore({
   reducer: {
     cashRegister: cashRegisterReducer,
     checkAttendance: checkAttendanceReducer,
     classNavigation: classNavigationReducer,
+    articleNavigation: articleNavigationReducer,
   },
 });
 

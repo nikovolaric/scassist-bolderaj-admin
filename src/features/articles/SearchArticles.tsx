@@ -4,11 +4,17 @@ import {
   PlusCircleIcon,
 } from "@heroicons/react/24/outline";
 import LinkBtn from "../../components/LinkBtn";
-import { useState, type Dispatch, type SetStateAction } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getArticles } from "../../services/articlesAPI";
 import Spinner from "../../components/Spinner";
 import ArticleCard from "./ArticleCard";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import {
+  getArticleNavigation,
+  setAgeGroup,
+  setLabel,
+} from "./slices/articleNavigatonSlice";
 
 const categories = [
   { name: "Vstopnice", label: "V" },
@@ -18,8 +24,9 @@ const categories = [
 ];
 
 function SearchArticles() {
-  const [label, setLabel] = useState("V");
-  const [ageGroup, setAgeGroup] = useState("adult");
+  // const [label, setLabel] = useState("V");
+  // const [ageGroup, setAgeGroup] = useState("adult");
+  const { ageGroup, label } = useAppSelector(getArticleNavigation);
   const [name, setName] = useState("");
 
   const { data, isPending } = useQuery({
@@ -38,9 +45,9 @@ function SearchArticles() {
           </p>
         </LinkBtn>
       </div>
-      <Filter label={label} setLabel={setLabel} />
+      <Filter label={label} />
       <div className="flex flex-col gap-4">
-        <AgeGroup ageGroup={ageGroup} setAgeGroup={setAgeGroup} />
+        <AgeGroup ageGroup={ageGroup} />
         <div className="drop-shadow-input border-gray/75 flex items-center gap-2 rounded-lg border bg-white px-3 py-2">
           <MagnifyingGlassIcon className="h-4 stroke-3" />
           <input
@@ -193,20 +200,16 @@ function SearchArticles() {
   );
 }
 
-function Filter({
-  label,
-  setLabel,
-}: {
-  label: string;
-  setLabel: Dispatch<SetStateAction<string>>;
-}) {
+function Filter({ label }: { label: string }) {
+  const dispatch = useAppDispatch();
+
   return (
     <div className="grid grid-cols-4 gap-5">
       {categories.map((cat) => (
         <button
           className={`font-quicksand w-full cursor-pointer rounded-xl py-9.5 text-center font-bold uppercase ${label === cat.label ? "bg-primary/55 outline-secondary outline-2" : "bg-white"}`}
           key={cat.label}
-          onClick={() => setLabel(cat.label)}
+          onClick={() => dispatch(setLabel(cat.label))}
         >
           {cat.name}
         </button>
@@ -215,17 +218,13 @@ function Filter({
   );
 }
 
-function AgeGroup({
-  ageGroup,
-  setAgeGroup,
-}: {
-  ageGroup: string;
-  setAgeGroup: Dispatch<SetStateAction<string>>;
-}) {
+function AgeGroup({ ageGroup }: { ageGroup: string }) {
+  const dispatch = useAppDispatch();
+
   const [isOpen, setIsOpen] = useState(false);
 
   function handleClick(ageGroup: string) {
-    setAgeGroup(ageGroup);
+    dispatch(setAgeGroup(ageGroup));
 
     setIsOpen(false);
   }
