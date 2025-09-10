@@ -9,6 +9,7 @@ function MultipleDateList({
     className: { sl: string };
     hours: number[];
     _id: string;
+    time: number[];
   }[];
 }) {
   const today = new Date().toLocaleDateString("sl-SI", { weekday: "long" });
@@ -22,7 +23,7 @@ function MultipleDateList({
             .filter(
               (el) => new Date(el.dates[el.dates.length - 1]) >= new Date(),
             )
-            .sort((a, b) => a.hours[0] - b.hours[0])
+            .sort((a, b) => a.time[0] - b.time[0])
             .map((el, i) => {
               if (
                 new Date(el.dates[0]).toLocaleDateString("sl-SI", {
