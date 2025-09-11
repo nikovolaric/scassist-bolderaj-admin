@@ -104,13 +104,23 @@ export async function deletePreInvoice(id: string) {
   }
 }
 
-export async function getAllPreinvoices(q: string, page: number) {
+export async function getAllPreinvoices({
+  q,
+  page,
+  payed,
+}: {
+  q: string;
+  page: number;
+  payed?: boolean;
+}) {
   try {
     const params = new URLSearchParams();
     params.append("q", q);
     params.append("sort", "-date");
     params.append("limit", "30");
     params.append("page", page.toString());
+
+    if (payed) params.append("payed", payed.toString());
 
     const res = await fetch(
       `${import.meta.env.VITE_API_URL}/preinvoices?${params.toString()}`,

@@ -122,7 +122,7 @@ function reducer(state: IInitialState, action: Action): IInitialState {
         (a) => a.articleId === articleId,
       );
 
-      if (modifiedArticle && quantity) {
+      if (modifiedArticle && quantity !== undefined) {
         modifiedArticle.quantity = quantity;
 
         const updatedArticles = state.articles.map((a) =>
@@ -132,7 +132,7 @@ function reducer(state: IInitialState, action: Action): IInitialState {
         return { ...state, articles: updatedArticles };
       }
 
-      if (modifiedArticle && discount) {
+      if (modifiedArticle && discount !== undefined) {
         modifiedArticle.discount = discount;
 
         const updatedArticles = state.articles.map((a) =>
@@ -647,14 +647,14 @@ function ArticleCard({
             placeholder="Ime artikla"
             className="w-80 rounded-lg border border-gray-300 px-3 py-1.5 shadow-xs outline-none"
             disabled
-            defaultValue={data?.article.name.sl}
+            value={article ? data?.article.name.sl : ""}
           />
         </div>
         <input
           type="number"
           placeholder="Količina"
           className="w-40 rounded-lg border border-gray-300 px-3 py-1.5 shadow-xs outline-none"
-          defaultValue={state.articles[i]?.quantity || ""}
+          value={article?.quantity || ""}
           onChange={(e) =>
             dispatch({
               type: "articles",
@@ -674,9 +674,7 @@ function ArticleCard({
               ? new Intl.NumberFormat("sl-SI", {
                   style: "currency",
                   currency: "EUR",
-                }).format(
-                  data.article.priceDDV * (state.articles[i]?.quantity || 1),
-                )
+                }).format(data.article.priceDDV * (article.quantity || 1))
               : ""
           }
         />
@@ -684,7 +682,7 @@ function ArticleCard({
           placeholder="DDV %"
           className="w-40 rounded-lg border border-gray-300 px-3 py-1.5 shadow-xs outline-none"
           disabled
-          defaultValue={
+          value={
             data
               ? new Intl.NumberFormat("sl-SI", {
                   style: "percent",
@@ -697,7 +695,9 @@ function ArticleCard({
         <input
           placeholder="Popust %"
           type="number"
+          min="0"
           className="w-40 rounded-lg border border-gray-300 px-3 py-1.5 shadow-xs outline-none"
+          value={article?.discount ? (article.discount * 100).toFixed(0) : ""}
           onChange={(e) =>
             dispatch({
               type: "articles",
@@ -831,11 +831,11 @@ function EndPart({
 
     if (!a || !article) return sum;
 
-    const quantity = a.quantity || 1;
+    const quantity = a.quantity;
     const discount = a.discount || 0;
     const price = article.priceDDV;
 
-    return sum + quantity * price * (1 - discount);
+    return sum + quantity! * price * (1 - discount);
   }, 0);
 
   return (

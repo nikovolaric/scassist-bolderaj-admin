@@ -145,6 +145,7 @@ function reducer(state: IInitialState, action: Action): IInitialState {
 function SearchInvoices() {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [page, setPage] = useState(1);
+  const [notPayed, setNotPayed] = useState(false);
 
   const {
     q,
@@ -189,8 +190,8 @@ function SearchInvoices() {
         enabled: category === "invoices",
       },
       {
-        queryKey: ["preinvoices", q, page],
-        queryFn: () => getAllPreinvoices(q, page),
+        queryKey: ["preinvoices", q, page, notPayed],
+        queryFn: () => getAllPreinvoices({ q, page, payed: notPayed }),
         enabled: category === "preinvoices",
       },
       {
@@ -283,6 +284,8 @@ function SearchInvoices() {
             preinvoices={preinvoiceData.preinvoices}
             page={page}
             setPage={setPage}
+            notPayed={notPayed}
+            setNotPayed={setNotPayed}
           />
         )}
     </>

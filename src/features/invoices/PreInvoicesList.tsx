@@ -18,6 +18,8 @@ function PreInvoicesList({
   preinvoices,
   page,
   setPage,
+  notPayed,
+  setNotPayed,
 }: {
   preinvoices: {
     preInvoiceNumber: string;
@@ -32,9 +34,29 @@ function PreInvoicesList({
   }[];
   page: number;
   setPage: Dispatch<SetStateAction<number>>;
+  notPayed: boolean;
+  setNotPayed: Dispatch<SetStateAction<boolean>>;
 }) {
   return (
-    <div className="rounded-xl bg-white px-12.5 py-12">
+    <div className="flex flex-col rounded-xl bg-white px-12.5 pt-6 pb-12">
+      <div className="mb-6 flex w-100 items-center self-end rounded-lg bg-white px-2 py-1 shadow-xs">
+        <button
+          className={`w-1/2 flex-none cursor-pointer py-1 text-center ${!notPayed ? "outline-secondary bg-neutral/50 rounded-lg shadow-xs outline-2" : ""}`}
+          onClick={() => {
+            setNotPayed(false);
+          }}
+        >
+          Vsi
+        </button>
+        <button
+          className={`w-1/2 flex-none cursor-pointer py-1 text-center ${notPayed ? "outline-secondary bg-neutral/50 rounded-lg shadow-xs outline-2" : ""}`}
+          onClick={() => {
+            setNotPayed(true);
+          }}
+        >
+          Neplačani
+        </button>
+      </div>
       <Namebar />
       {preinvoices.map(
         (
