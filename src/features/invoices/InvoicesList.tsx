@@ -8,7 +8,7 @@ import {
 import { useState, type Dispatch, type SetStateAction } from "react";
 import {
   checkConnection,
-  checkNotConfirmed,
+  // checkNotConfirmed,
   openInvoice,
   stornoInvoice,
   updateInvoice,
