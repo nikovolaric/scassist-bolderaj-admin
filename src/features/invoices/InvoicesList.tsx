@@ -54,14 +54,16 @@ function InvoicesList({
     ],
   });
 
+  console.log(data, isPending);
+
   return (
     <div>
       <div className="flex justify-between">
-        {!isPending && data.data.EchoResponse !== "furs" && (
+        {/* {!isPending && data.data.EchoResponse !== "furs" && (
           <p className="font-medium text-red-600">
             Povezava s FURS ni vzpostavljena
           </p>
-        )}
+        )} */}
       </div>
       <div className="rounded-xl bg-white px-12.5 py-12">
         <div className="flex items-center justify-between">
