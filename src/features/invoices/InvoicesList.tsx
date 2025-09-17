@@ -7,6 +7,8 @@ import {
 } from "lucide-react";
 import { useState, type Dispatch, type SetStateAction } from "react";
 import {
+  checkConnection,
+  checkNotConfirmed,
   openInvoice,
   stornoInvoice,
   updateInvoice,
@@ -17,7 +19,7 @@ import {
   ChevronRightIcon,
   PencilIcon,
 } from "@heroicons/react/24/outline";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueries, useQueryClient } from "@tanstack/react-query";
 
 function InvoicesList({
   invoices,
@@ -45,81 +47,97 @@ function InvoicesList({
   setPage: Dispatch<SetStateAction<number>>;
   totalFilterSum?: number;
 }) {
+  const [{ data, isPending }] = useQueries({
+    queries: [
+      { queryKey: ["furs"], queryFn: checkConnection },
+      // { queryKey: ["notconfirmed"], queryFn: checkNotConfirmed },
+    ],
+  });
+
   return (
-    <div className="rounded-xl bg-white px-12.5 py-12">
-      <div className="flex items-center justify-between">
-        <div>
-          {totalFilterSum ? (
-            <p>
-              Skupni znesek filtra:{" "}
-              <span className="font-bold">
-                {new Intl.NumberFormat("sl-SI", {
-                  style: "currency",
-                  currency: "EUR",
-                }).format(totalFilterSum)}
-              </span>
-            </p>
-          ) : (
-            ""
+    <div>
+      <div className="flex justify-between">
+        {!isPending && data.data.EchoResponse !== "furs" && (
+          <p className="font-medium text-red-600">
+            Povezava s FURS ni vzpostavljena
+          </p>
+        )}
+      </div>
+      <div className="rounded-xl bg-white px-12.5 py-12">
+        <div className="flex items-center justify-between">
+          <div>
+            {totalFilterSum ? (
+              <p>
+                Skupni znesek filtra:{" "}
+                <span className="font-bold">
+                  {new Intl.NumberFormat("sl-SI", {
+                    style: "currency",
+                    currency: "EUR",
+                  }).format(totalFilterSum)}
+                </span>
+              </p>
+            ) : (
+              ""
+            )}
+          </div>
+          <p className="mb-2 text-right">
+            Skupni znesek na strani:{" "}
+            <span className="font-bold">
+              {new Intl.NumberFormat("sl-SI", {
+                style: "currency",
+                currency: "EUR",
+              }).format(
+                invoices.reduce(
+                  (c: number, a: { totalAmount: number }) => c + a.totalAmount,
+                  0,
+                ),
+              )}
+            </span>
+          </p>
+        </div>
+        <Namebar />
+        {invoices.map(
+          (
+            invoice: {
+              invoiceData: {
+                businessPremises: string;
+                deviceNo: string;
+                invoiceNo: number;
+                year: number;
+              };
+              invoiceDate: string;
+              buyer: { fullName: string; _id: string };
+              company: { name: string };
+              recepient: { name: string };
+              paymentMethod: string;
+              totalAmount: number;
+              storno: boolean;
+              _id: string;
+            },
+            i: number,
+          ) => (
+            <InvoiceCard key={invoice._id} invoice={invoice} i={i} />
+          ),
+        )}
+        <div className="mt-4 flex items-center justify-between">
+          {page !== 1 && (
+            <button
+              className="from-primary to-secondary drop-shadow-btn hover:to-primary flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-gradient-to-r px-3 py-1 font-semibold transition-colors duration-300"
+              onClick={() => setPage(page - 1)}
+            >
+              <ChevronLeft height={20} /> Nazaj
+            </button>
+          )}
+          {page === 1 && <div />}
+          {invoices.length === 30 && (
+            <button
+              className="from-primary to-secondary drop-shadow-btn hover:to-primary flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-gradient-to-r px-3 py-1 font-semibold transition-colors duration-300"
+              onClick={() => setPage(page + 1)}
+            >
+              Naprej <ChevronRight height={20} />{" "}
+            </button>
           )}
         </div>
-        <p className="mb-2 text-right">
-          Skupni znesek na strani:{" "}
-          <span className="font-bold">
-            {new Intl.NumberFormat("sl-SI", {
-              style: "currency",
-              currency: "EUR",
-            }).format(
-              invoices.reduce(
-                (c: number, a: { totalAmount: number }) => c + a.totalAmount,
-                0,
-              ),
-            )}
-          </span>
-        </p>
-      </div>
-      <Namebar />
-      {invoices.map(
-        (
-          invoice: {
-            invoiceData: {
-              businessPremises: string;
-              deviceNo: string;
-              invoiceNo: number;
-              year: number;
-            };
-            invoiceDate: string;
-            buyer: { fullName: string; _id: string };
-            company: { name: string };
-            recepient: { name: string };
-            paymentMethod: string;
-            totalAmount: number;
-            storno: boolean;
-            _id: string;
-          },
-          i: number,
-        ) => (
-          <InvoiceCard key={invoice._id} invoice={invoice} i={i} />
-        ),
-      )}
-      <div className="mt-4 flex items-center justify-between">
-        {page !== 1 && (
-          <button
-            className="from-primary to-secondary drop-shadow-btn hover:to-primary flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-gradient-to-r px-3 py-1 font-semibold transition-colors duration-300"
-            onClick={() => setPage(page - 1)}
-          >
-            <ChevronLeft height={20} /> Nazaj
-          </button>
-        )}
-        {page === 1 && <div />}
-        {invoices.length === 30 && (
-          <button
-            className="from-primary to-secondary drop-shadow-btn hover:to-primary flex cursor-pointer items-center justify-center gap-2 rounded-lg bg-gradient-to-r px-3 py-1 font-semibold transition-colors duration-300"
-            onClick={() => setPage(page + 1)}
-          >
-            Naprej <ChevronRight height={20} />{" "}
-          </button>
-        )}
       </div>
     </div>
   );
