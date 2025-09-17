@@ -215,8 +215,23 @@ function CreateInvoiceForm() {
   async function handleCreateInvoice() {
     try {
       setIsLoading(true);
+      setErr("");
 
-      if (!state.buyer && !state.recepient && !state.company) return;
+      if (!state.buyer && !state.recepient && !state.company) {
+        setErr("Izponi vse podatke");
+        return;
+      }
+
+      if (
+        !paymentDueDate ||
+        serviceCompletionDate ||
+        articles ||
+        paymentMethod
+      ) {
+        setErr("Izponi vse podatke");
+
+        return;
+      }
 
       const data = await createInvoice({
         buyer,
@@ -298,7 +313,7 @@ function CreateInvoiceForm() {
           >
             Shrani in ustvari račun
           </button>
-          {err && <p>{err}</p>}
+          {err && <p className="font-medium text-red-600">{err}</p>}
         </div>
       </div>
     </>

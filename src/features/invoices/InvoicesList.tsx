@@ -57,7 +57,7 @@ function InvoicesList({
   return (
     <div>
       <div className="flex justify-between">
-        {!isPending && data.data.EchoResponse !== "furs" && (
+        {!isPending && (data.data.EchoResponse !== "furs" || !data) && (
           <p className="font-medium text-red-600">
             Povezava s FURS ni vzpostavljena
           </p>
